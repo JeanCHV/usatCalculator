@@ -1,0 +1,26 @@
+{
+    "grading_system_name": "Sistema de calificación",
+    "ra_formula": "RA = promedio (Calificaciones obtenidas en sus indicadores)",
+    "learning_results": [
+        {
+            "name": "RA1",
+            "unit": "I",
+            "weight": 0.3,
+            "number_of_evaluations": 2
+        },
+        {
+            "name": "RA2",
+            "unit": "II",
+            "weight": 0.35,
+            "number_of_evaluations": 2
+        },
+        {
+            "name": "RA3",
+            "unit": "III",
+            "weight": 0.35,
+            "number_of_evaluations": 2
+        }
+    ],
+    "total_planned_evaluations": 6,
+    "final_grade_formula": "NF = RA1(0.30) + RA2(0.35) + RA3(0.35)"
+}

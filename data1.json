@@ -1,0 +1,100 @@
+{
+    "unidades": [
+        {
+            "unidad": "Unidad didáctica N° 01: Introducción a la Minería de datos",
+            "resultado": "Comprende los fundamentos de la minería de datos, aplica las tres primeras fases de la metodología CRISP-DM y diferencia la tipología de tareas y grupos de métodos.",
+            "indicadores": "RA1 = IND1(0.50) + IND2(0.50)",
+            "evaluacion": "1.1 Exposición del Silabo.1.2 Evaluación diagnóstica.1.3 Conceptos básicos de minería de datos.1.4 El proceso de minería de datos KDD.1.5 Metodologías: CRISP-DM y SEMMA.1.6 Foro de debate y argumentación.1.7 Metodología CRISP-DM: comprensión del negocio, comprensión de los datos y preparación de los datos.1.8 Metodología CRISP-DM - Introducción al modelado: Tipología de tareas: clasificación, regresión, agrupamiento y asociación.1.9 Metodología CRISP-DM - Introducción al modelado: Grupos de métodos: métodos supervisados y métodos no supervisados.1.10 Examen Unidad 1.",
+            "indicadores_detalles": [
+                {
+                    "codigo": "IND1",
+                    "descripcion": "Argumenta sobre los fundamentos de minería de datos.",
+                    "peso": "50.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Foro de debate y argumentación",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 1"
+                        }
+                    ]
+                },
+                {
+                    "codigo": "IND2",
+                    "descripcion": "Aplica las tres primeras fases de la metodología CRISP-DM, así como también diferencia la tipología de tareas y grupos de métodos.",
+                    "peso": "50.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Examen Unidad 1",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "unidad": "Unidad didáctica N° 02: Métodos y técnicas de minería de datos",
+            "resultado": "Implementa proyectos de minería de datos mediante la aplicación de las fases cuarta y quinta de la metodología CRISP-DM.",
+            "indicadores": "RA2 = IND3(0.60) + IND4(0.40)",
+            "evaluacion": "2.1 Metodología CRISP-DM: Modelado y evaluación.2.2 Métodos supervisados: Clasificación: Árboles de clasificación. Interpretación y evaluación de resultados.2.3 Métodos supervisados: Clasificación: Redes neuronales. Interpretación y evaluación de resultados.2.4 Métodos supervisados: Clasificación: Métodos probabilísticos y máquinas de vectores de soporte. Interpretación y evaluación de resultados.2.5 Métodos supervisados: Regresión lineal múltiple. Interpretación y evaluación de resultados.2.6 Métodos supervisados: Regresión logística. Interpretación y evaluación de resultados.2.7 Métodos supervisados: Regresión lineal simple. Interpretación y evaluación de resultados.2.8 Métodos no supervisados: Agrupamiento por particionamiento. Interpretación y evaluación de resultados.2.9 Métodos no supervisados: Agrupamiento jerárquico: Aglomerativos, Divisivos. Interpretación y evaluación de resultados.2.10 Métodos no supervisados: Asociación y sistemas de Recomendación. Interpretación y evaluación de resultados.2.11 Trabajo colaborativo 1.2.12 Examen Unidad 2.",
+            "indicadores_detalles": [
+                {
+                    "codigo": "IND3",
+                    "descripcion": "Analiza e implementa algoritmos de minería de datos interpretando y evaluando los resultados obtenidos según el escenario real planteado.",
+                    "peso": "60.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Trabajo colaborativo 1",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 3"
+                        }
+                    ]
+                },
+                {
+                    "codigo": "IND4",
+                    "descripcion": "Diferencia e implementa algoritmos de minería de datos sustentando los resultados obtenidos.",
+                    "peso": "40.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Examen Unidad 2",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 4"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "unidad": "Unidad didáctica N° 03: Big Data",
+            "resultado": "Realiza analítica de datos para proponer una solución de Big Data.",
+            "indicadores": "RA3 = IND5(0.40) + IND6(0.60)",
+            "evaluacion": "3.1 Aspectos previos de Big data.3.2 Fundamentos de Big data: dimensiones, arquitectura.3.3 Analítica de Big Data.3.4 Distribuciones y Tecnologías de Big data.3.5 Procesamiento distribuido: manejo de framework.3.6 Examen Unidad 3.3.7 Trabajo colaborativo 2.",
+            "indicadores_detalles": [
+                {
+                    "codigo": "IND5",
+                    "descripcion": "Diseña e implementa una aproximación a una solución Big data.",
+                    "peso": "40.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Examen de Unidad 3",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 5"
+                        }
+                    ]
+                },
+                {
+                    "codigo": "IND6",
+                    "descripcion": "Analiza los datos y propone una solución de Big data según el escenario real en estudio.",
+                    "peso": "60.00",
+                    "evidencia_detalle": [
+                        {
+                            "evidencia": "Trabajo colaborativo 2",
+                            "peso_evidencia": "100.00",
+                            "instrumento": "Rúbrica 6"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

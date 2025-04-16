@@ -1,0 +1,97 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px; /* Aumenté el margen superior y de los lados */
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 1100px; /* Limité el ancho máximo del contenedor */
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px; /* Aumenté el margen inferior para más espacio */
+}
+
+.header span {
+    font-weight: bold;
+}
+
+.unit {
+    margin-bottom: 30px; /* Mayor separación entre unidades */
+    border: 1px solid #d9534f;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.unit-header {
+    background-color: #d9534f;
+    color: white;
+    padding: 15px; /* Aumenté el padding para que se vea más espacioso */
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.unit-body {
+    background-color: #f8d7da;
+    padding: 15px; /* Aumenté el padding para más espacio interno */
+}
+
+.sub-item {
+    padding: 10px 15px; /* Aumenté el padding para más espacio interno */
+    background-color: white;
+    margin-bottom: 10px; /* Mayor separación entre sub-items */
+    display: flex;
+    justify-content: space-between;
+    border-left: 5px solid #d9534f;
+}
+
+.resultado {
+    padding: 10px 15px; /* Mayor padding para el resultado */
+    background-color: #fff9f9;
+    margin-bottom: 10px; /* Mayor separación entre resultados */
+    display: flex;
+    justify-content: space-between;
+    border-left: 5px solid #d9534f;
+}
+
+.sub-item span {
+    font-weight: bold;
+}
+
+.sub-item input {
+    width: 90px; /* Ancho un poco mayor para los inputs */
+    padding: 5px;
+    text-align: center;
+    color: white; /* Cambia el color del texto a blanco */
+    background-color: #333; /* Puedes ajustar el color de fondo si lo deseas */
+}
+
+
+.sub-item.pending {
+    color: gray;
+}
+
+.unit-footer {
+    background-color: #f8d7da;
+    padding: 15px; /* Aumenté el padding para mayor separación */
+    text-align: right;
+    font-weight: bold;
+}
+
+.final-average {
+    background-color: #900;
+    color: white;
+    padding: 15px; /* Aumenté el padding para más espacio */
+    text-align: center;
+    font-size: 1.2em;
+    border-radius: 5px;
+    margin-top: 20px; /* Añadí margen superior para separar del contenido anterior */
+}
