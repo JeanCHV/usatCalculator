@@ -158,7 +158,7 @@ const generarHTML = () => {
                         <span class="badge text rounded-pill" style="background-color: red; color: white;">
                             <input style="background-color: red; border: none; color: white !important; text-align: center;" 
                                 type="number" class="nota" data-unit="${unidadNum}" data-indicador="${ind.codigo}" data-peso="${ev.peso_evidencia == 'Prom.Simple' ? 100 :ev.peso_evidencia}" 
-                                value="0.00" min="0" max="20">
+                                 min="0" max="20" placeholder="0.00" step="0.01"  />
                         </span>                         
                     </li>
                 `
