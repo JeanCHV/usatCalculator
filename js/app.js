@@ -241,7 +241,8 @@ function actualizarPromedioUnidad(unidadIndex) {
 
     unidad.indicadores_detalles.forEach(indicador => {
         // Peso del indicador en decimal
-        const pesoIndicador = parseFloat(indicador.peso) / 100;
+        var  pesoUnidad = indicador.peso== 'Prom.Simple' ? 100 : parseFloat(indicador.peso);
+        const pesoIndicador = parseFloat(pesoUnidad) / 100;
 
         // Inputs de evidencias que pertenecen a este indicador
         let sumaNotas = 0;
