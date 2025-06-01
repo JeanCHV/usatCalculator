@@ -4,7 +4,7 @@ var data1 = null;
 var data2 = null;
 
 const analizarPDF = async () => {
-    const archivo = document.getElementById("pdfFile").files[0];
+    const archivo = $("#pdfFile")[0].files[0];
     if (!archivo) {
         Swal.fire('Error', 'Por favor selecciona un archivo PDF.', 'error');
         return;
@@ -119,11 +119,12 @@ const enviarTexto = async (texto, url) => {
     }
 };
 
-function generarHTML() {
+const generarHTML = () => {
     if (!data1 || !data1.unidades || data1.unidades.length === 0 || !data2) {
-        return document.getElementById("body-content").innerHTML = `
+        $("#body-content").html(`
             <div class="alert alert-warning">No hay datos suficientes para generar la vista.</div>
-        `;
+        `);
+        return;
     }
 
     const pesosUnidades = {};
@@ -151,68 +152,65 @@ function generarHTML() {
             const pesoRelativo = (1 / unidad.indicadores_detalles.length).toFixed(2);
             
             let evidenciasHTML = ind.evidencia_detalle.map(ev => 
+                `   
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                         ${ev.evidencia}
+                        <span class="badge text rounded-pill" style="background-color: red; color: white;">
+                            <input style="background-color: red; border: none; color: white !important; text-align: center;" 
+                                type="number" class="nota" data-unit="${unidadNum}" data-indicador="${ind.codigo}" data-peso="${ev.peso_evidencia == 'Prom.Simple' ? 100 :ev.peso_evidencia}" 
+                                value="0.00" min="0" max="20">
+                        </span>                         
+                    </li>
                 `
-                ${ev.evidencia}`
             ).join('');
             
             subItemsHTML += `
-
-                    <li class="list-group-item">
-                        <i class="bi bi-chevron-down"></i> ${ind.descripcion}
-                    </li>
-
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        ${evidenciasHTML}
-                        <span class="badge text rounded-pill" style="background-color: red; color: white;">
-                            <input 
-                                style="background-color: red;border: none;color: white !important;text-align: center;" 
-                                type="number" 
-                                class="nota" 
-                                data-unit="${unidadNum}" 
-                                data-indicador="${ind.codigo}" 
-                                data-peso="${ind.peso}" 
-                                value="0.00" 
-                                min="0" 
-                                max="20"
-                                oninput="cambiarColorNota(this, ${index})"
-                            >
-                        </span>
-                    </li>
-                `;
+                <li class="list-group-item">
+                    <i class="bi bi-chevron-down"></i> ${ind.descripcion}
+                </li>
+                ${evidenciasHTML}
+            `;
         });
+
         unidadesHTML += `
             <div class="card">
-            <div class="card-header" style="background-color: #d9534f; color: white; padding: 10px;">
-                <span>${unidad.unidad.replace("Unidad didáctica N°", "UNIDAD").toUpperCase()}</span>
-            </div>
-            <div class="card-body">          
-                <ul class="list-group">
-                    <li class="list-group-item list-group-item-danger d-flex justify-content-between align-items-center">
-                        <i class="bi bi-chevron-down"></i> ${unidad.resultado}
-                        <span class="badge text rounded-pill" style="background-color: red; color: white;">Peso: ${pesoUnidad}% | <span id="promedioUnidad${index + 1}">0.00</span></span>
-                    </li>
-                    ${subItemsHTML}
-                </ul>
-                    
-            </div>
+                <div class="card-header" style="background-color: #d9534f; color: white; padding: 10px;">
+                    <span>${unidad.unidad.replace("Unidad didáctica N°", "UNIDAD").toUpperCase()}</span>
+                </div>
+                <div class="card-body">          
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-danger d-flex justify-content-between align-items-center">
+                            <i class="bi bi-chevron-down"></i> ${unidad.resultado}
+                            <span class="badge text rounded-pill" style="background-color: red; color: white;">Peso: ${pesoUnidad}% | <span id="promedioUnidad${index + 1}">0.00</span></span>
+                        </li>
+                        ${subItemsHTML}
+                    </ul>
+                </div>
             </div>
         `;
     });
 
-    document.getElementById("body-content").innerHTML = `
+    $("#body-content").html(`
         <div class="header">
             <span>Semestre: <span id="Semestre">${Semestre || 'No especificado'}</span></span>
             <span id="curso">${nombreCurso || 'Curso no especificado'}</span>
         </div>
-
         ${unidadesHTML}
         <div class="final-average" style="background-color: #900; color: white; padding: 10px; text-align: center; font-size: 1.2em; border-radius: 5px;">
             Avance del Promedio Final: <span id="promedio-final">0.00</span>
         </div>
-    `;
-}
+    `);
 
-// Función para cambiar el color del input, el color del span padre y calcular el promedio
+    // Asignar eventos con jQuery a los inputs de nota
+    $(".nota").on("input", function() {
+        // Buscar el índice de la unidad correspondiente
+        const unidadNum = $(this).data("unit");
+        const unidadIndex = convertFromRoman(unidadNum) - 1;
+        cambiarColorNota(this, unidadIndex);
+    });
+};
+
+// Función para cambiar el color del input y calcular el promedio
 function cambiarColorNota(input, unidadIndex) {
     const valor = parseFloat(input.value);
     const spanPadre = input.parentElement; // Obtener el span más cercano al input
@@ -235,31 +233,51 @@ function cambiarColorNota(input, unidadIndex) {
     actualizarPromedioFinal();
 }
 
+
 // Función para actualizar el promedio de la unidad
 function actualizarPromedioUnidad(unidadIndex) {
-    const unidad = data1.unidades[unidadIndex]; // Obtener la unidad correspondiente
-    const inputNotas = document.querySelectorAll(`.nota[data-unit="${convertToRoman(unidadIndex + 1)}"]`);
-    
-    let totalPeso = 0;
-    let totalNota = 0;
+    const unidad = data1.unidades[unidadIndex];
+    let promedioUnidad = 0;
 
-    inputNotas.forEach(input => {
-        const valor = parseFloat(input.value);
-        const peso = parseFloat(input.getAttribute('data-peso'));
+    unidad.indicadores_detalles.forEach(indicador => {
+        // Peso del indicador en decimal
+        const pesoIndicador = parseFloat(indicador.peso) / 100;
 
-        // Sumar el producto de la nota por el peso
-        totalPeso += peso;
-        totalNota += valor * peso;
+        // Inputs de evidencias que pertenecen a este indicador
+        let sumaNotas = 0;
+        let cantidadNotas = 0;
+
+        indicador.evidencia_detalle.forEach(ev => {
+            // Seleccionamos el input correspondiente con data-indicador y data-unit
+            const selector = `.nota[data-unit="${convertToRoman(unidadIndex + 1)}"][data-indicador="${indicador.codigo}"]`;
+            const input = $(selector)[cantidadNotas]; // Asumiendo 1 evidencia por indicador
+
+            if (input) {
+                const valor = parseFloat($(input).val()) || 0;
+                sumaNotas += valor;
+                cantidadNotas++;
+            }
+        });
+
+        const promedioIndicador = cantidadNotas > 0 ? (sumaNotas / cantidadNotas) : 0;
+
+        promedioUnidad += promedioIndicador * pesoIndicador;
     });
 
-    const promedio = totalPeso === 0 ? 0 : (totalNota / totalPeso).toFixed(2); // Evitar división por cero
-
     // Actualizar el promedio en el HTML
-    const promedioElemento = document.getElementById(`promedioUnidad${unidadIndex + 1}`);
-    if (promedioElemento) {
-        promedioElemento.textContent = promedio;
+    const promedioElemento = $(`#promedioUnidad${unidadIndex + 1}`);
+    promedioElemento.text(promedioUnidad.toFixed(2));
+
+    // Cambiar color según promedio
+    if (promedioUnidad < 13.5) {
+        promedioElemento.css('background-color', 'red');
+        promedioElemento.parent().css('background-color', 'red');
+    } else {
+        promedioElemento.css('background-color', 'blue');
+        promedioElemento.parent().css('background-color', 'blue');
     }
 }
+
 
 // Función para calcular y actualizar el promedio final
 function actualizarPromedioFinal() {
@@ -270,17 +288,24 @@ function actualizarPromedioFinal() {
         const raPeso = ra.weight;
         const unidadIndex = ra.unit === "I" ? 0 : ra.unit === "II" ? 1 : 2;
 
-        const unidadPromedio = parseFloat(document.getElementById(`promedioUnidad${unidadIndex + 1}`).textContent);
+        const unidadPromedio = parseFloat($(`#promedioUnidad${unidadIndex + 1}`).text());
 
         // Calculamos el promedio ponderado de cada RA
         totalPromedioFinal += (unidadPromedio * raPeso);
     });
 
     const promedioFinal = totalPromedioFinal.toFixed(2); // Promedio final calculado
-    document.getElementById("promedio-final").textContent = promedioFinal;
+    $("#promedio-final").text(promedioFinal);
 }
+
 // Función para convertir un número entero a su equivalente en número romano
 function convertToRoman(num) {
     const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']; // Hasta 10
     return romanNumerals[num - 1] || ''; // Retorna el número romano correspondiente, con un máximo de 10 unidades
+}
+
+// Función para convertir un número romano a entero
+function convertFromRoman(roman) {
+    const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    return romanNumerals.indexOf(roman) + 1;
 }

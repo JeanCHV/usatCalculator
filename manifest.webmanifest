@@ -1,0 +1,21 @@
+{
+  "name": "USAT Calculator",
+  "short_name": "USATCalc",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#900",
+  "theme_color": "#900",
+  "description": "Generador de calculadora de promedio para USAT.",
+  "icons": [
+    {
+      "src": "assets/img/usat_logo_red.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "assets/img/usat_logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
