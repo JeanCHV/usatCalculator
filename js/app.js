@@ -204,17 +204,56 @@ const generarHTML = () => {
 
     // Botón compartir PNG
     $("#share-png").on("click", async function() {
+        Swal.fire({
+            title: 'Generando imagen...',
+            html: '<div class="spinner-border text-success" role="status"></div><br><small>Preparando la imagen para compartir o descargar...</small>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            background: '#f8f9fa',
+            customClass: {
+                title: 'swal2-title-custom',
+                popup: 'swal2-popup-custom',
+                htmlContainer: 'swal2-html-custom'
+            },
+            didOpen: () => { Swal.showLoading(); }
+        });
         html2canvas(document.querySelector("#body-content"), {backgroundColor: null}).then(async function(canvas) {
             canvas.toBlob(async function(blob) {
+                await Swal.close();
                 if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'calculadora_usat.png', { type: blob.type })] })) {
                     try {
                         await navigator.share({
                             files: [new File([blob], 'calculadora_usat.png', { type: blob.type })],
                             title: 'Calculadora USAT',
-                            text: 'Te comparto el avance del promedio final.'
+                            text: 'Te comparto el avance del promedio final generado con la Calculadora USAT.'
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Compartido!',
+                            text: 'La imagen fue compartida exitosamente.',
+                            confirmButtonColor: '#28a745',
+                            background: '#f8f9fa',
+                            customClass: {
+                                title: 'swal2-title-custom',
+                                popup: 'swal2-popup-custom',
+                                htmlContainer: 'swal2-html-custom'
+                            },
+                            timer: 2000
                         });
                     } catch (err) {
-                        Swal.fire('Cancelado', 'No se completó el compartir.', 'info');
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Compartir cancelado',
+                            text: 'No se completó el proceso de compartir.',
+                            confirmButtonColor: '#6c757d',
+                            background: '#f8f9fa',
+                            customClass: {
+                                title: 'swal2-title-custom',
+                                popup: 'swal2-popup-custom',
+                                htmlContainer: 'swal2-html-custom'
+                            },
+                            timer: 2000
+                        });
                     }
                 } else {
                     // Fallback: descarga
@@ -222,14 +261,116 @@ const generarHTML = () => {
                     link.download = 'calculadora_usat.png';
                     link.href = canvas.toDataURL();
                     link.click();
-                    Swal.fire('Descargado', 'Tu imagen se ha descargado porque tu navegador no soporta compartir.', 'info');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Descargado',
+                        html: '<b>Tu imagen se ha descargado.</b><br><small>Si quieres compartirla, búscala en tu carpeta de descargas y envíala por tu app favorita.</small>',
+                        confirmButtonColor: '#007bff',
+                        background: '#f8f9fa',
+                        customClass: {
+                            title: 'swal2-title-custom',
+                            popup: 'swal2-popup-custom',
+                            htmlContainer: 'swal2-html-custom'
+                        },
+                        timer: 3500
+                    });
                 }
             }, 'image/png');
         });
     });
 
+    // Mejoras visuales generales para la UI dinámica
+    $("#body-content .card").addClass("shadow-lg border-0 mb-4");
+    $("#body-content .card-header").css({
+        'background': 'linear-gradient(90deg, #d9534f 60%, #f7b731 100%)',
+        'color': 'white',
+        'fontWeight': 'bold',
+        'fontSize': '1.1em',
+        'letterSpacing': '1px',
+        'borderTopLeftRadius': '10px',
+        'borderTopRightRadius': '10px',
+        'boxShadow': '0 2px 8px rgba(0,0,0,0.07)'
+    });
+    $("#body-content .card-body").css({
+
+        'borderBottomLeftRadius': '10px',
+        'borderBottomRightRadius': '10px',
+        'padding': '1.5rem'
+    });
+    $("#body-content .list-group-item").css({
+        'fontSize': '1em',
+        'background': '#f8f9fa',
+        'border': 'none',
+        'marginBottom': '4px',
+        'borderRadius': '6px'
+    });
+    $("#body-content .list-group-item-danger").css({
+        'background': 'linear-gradient(90deg, #d9534f 60%, #f7b731 100%)',
+        'color': 'white',
+        'fontWeight': 'bold'
+    });
+    $("#body-content .badge").css({
+        'fontSize': '1em',
+        'padding': '0.5em 1em',
+        'boxShadow': '0 1px 4px rgba(0,0,0,0.08)'
+    });
+    $("#body-content input.nota").css({
+        'borderRadius': '6px',
+        'fontWeight': 'bold',
+        'fontSize': '1em',
+        'boxShadow': '0 1px 4px rgba(0,0,0,0.08)',
+        'transition': 'background 0.3s'
+    });
+    $("#body-content .final-average").css({
+        'background': 'linear-gradient(90deg, #900 60%, #f7b731 100%)',
+        'color': 'white',
+        'fontWeight': 'bold',
+        'fontSize': '1.3em',
+        'marginTop': '2rem',
+        'boxShadow': '0 2px 8px rgba(0,0,0,0.10)'
+    });
+    $("#body-content .header").css({
+        'background': '#f7b731',
+        'color': '#900',
+        'fontWeight': 'bold',
+        'fontSize': '1.1em',
+        'padding': '1em',
+        'borderRadius': '10px',
+        'marginBottom': '1.5em',
+        'boxShadow': '0 2px 8px rgba(0,0,0,0.07)'
+    });
+    $("#body-content #share-png").css({
+        'fontWeight': 'bold',
+        'fontSize': '1.1em',
+        'padding': '0.7em 1.5em',
+        'borderRadius': '8px',
+        'boxShadow': '0 2px 8px rgba(0,0,0,0.10)',
+        'marginBottom': '1.5em',
+        'background': 'linear-gradient(90deg, #28a745 60%, #f7b731 100%)',
+        'border': 'none'
+    });
     // Asignar eventos con jQuery a los inputs de nota
     $(".nota").on("input", function() {
+        // Limitar a máximo 2 dígitos y valores entre 0 y 20
+        let val = $(this).val();
+        // Eliminar caracteres no numéricos excepto el punto
+        val = val.replace(/[^\d.]/g, '');
+        // Limitar a dos dígitos antes del punto y dos después
+        if (val.includes('.')) {
+            let [ent, dec] = val.split('.');
+            ent = ent.slice(0, 2); // máximo dos dígitos antes del punto
+            dec = dec.slice(0, 2); // máximo dos decimales
+            val = ent + '.' + dec;
+        } else {
+            val = val.slice(0, 2); // máximo dos dígitos
+        }
+        // Convertir a número y limitar entre 0 y 20
+        let num = parseFloat(val);
+        if (isNaN(num)) num = '';
+        else if (num > 20) num = 20;
+        else if (num < 0) num = 0;
+        $(this).val(num);
+
         // Buscar el índice de la unidad correspondiente
         const unidadNum = $(this).data("unit");
         const unidadIndex = convertFromRoman(unidadNum) - 1;
