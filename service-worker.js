@@ -13,7 +13,6 @@ self.addEventListener('install', event => {
         'https://code.jquery.com/jquery-3.7.1.min.js',
         'https://cdn.jsdelivr.net/npm/sweetalert2@11',
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js',
-        'https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap'
       ]);
     })
   );
