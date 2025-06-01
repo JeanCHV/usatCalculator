@@ -191,6 +191,7 @@ const generarHTML = () => {
     });
 
     $("#body-content").html(`
+        <button id="share-png" class="btn btn-success mb-3"><i class="bi bi-share"></i> Compartir</button>
         <div class="header">
             <span>Semestre: <span id="Semestre">${Semestre || 'No especificado'}</span></span>
             <span id="curso">${nombreCurso || 'Curso no especificado'}</span>
@@ -200,6 +201,32 @@ const generarHTML = () => {
             Avance del Promedio Final: <span id="promedio-final">0.00</span>
         </div>
     `);
+
+    // Botón compartir PNG
+    $("#share-png").on("click", async function() {
+        html2canvas(document.querySelector("#body-content"), {backgroundColor: null}).then(async function(canvas) {
+            canvas.toBlob(async function(blob) {
+                if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'calculadora_usat.png', { type: blob.type })] })) {
+                    try {
+                        await navigator.share({
+                            files: [new File([blob], 'calculadora_usat.png', { type: blob.type })],
+                            title: 'Calculadora USAT',
+                            text: 'Te comparto el avance del promedio final.'
+                        });
+                    } catch (err) {
+                        Swal.fire('Cancelado', 'No se completó el compartir.', 'info');
+                    }
+                } else {
+                    // Fallback: descarga
+                    var link = document.createElement('a');
+                    link.download = 'calculadora_usat.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    Swal.fire('Descargado', 'Tu imagen se ha descargado porque tu navegador no soporta compartir.', 'info');
+                }
+            }, 'image/png');
+        });
+    });
 
     // Asignar eventos con jQuery a los inputs de nota
     $(".nota").on("input", function() {
