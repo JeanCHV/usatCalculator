@@ -3,11 +3,11 @@ self.addEventListener('install', event => {
     caches.open('usat-calc-v1').then(cache => {
       return cache.addAll([
         '/',
-        '/index.html',
-        '/css/style.css',
-        '/js/app.js',
-        '/assets/img/usat_logo.png',
-        '/assets/img/usat_logo_red.jpg',
+        'index.html',
+        'css/style.css',
+        'js/app.js',
+        'assets/img/usat_logo.png',
+        'assets/img/usat_logo_red.jpg',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
         'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
         'https://code.jquery.com/jquery-3.7.1.min.js',
