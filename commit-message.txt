@@ -1,5 +1,0 @@
-feat(app): cambia nombre de la app a "USAT NOTE"
-
-- Actualiza el título y metadatos en index.html de "USAT CALCULATOR" a "USAT NOTE".
-- El nombre de la app es consistente en la interfaz y en el manifest para PWA.
-- No se modifica funcionalidad, solo branding y presentación.
