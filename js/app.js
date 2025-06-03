@@ -478,3 +478,9 @@ function convertFromRoman(roman) {
     const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
     return romanNumerals.indexOf(roman) + 1;
 }
+
+// Asignar evento al botón de generar calculadora
+$(document).on('click', '#btn-generar-calc', function(e) {
+    e.preventDefault();
+    analizarPDF();
+});

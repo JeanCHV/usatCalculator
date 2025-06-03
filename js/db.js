@@ -175,4 +175,3 @@ deleteRequest.onsuccess = deleteRequest.onerror = deleteRequest.onblocked = func
         };
     });
 };
-
