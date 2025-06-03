@@ -17,11 +17,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <!-- html2canvas CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="css/style.css" rel="stylesheet">
     <link rel="manifest" href="manifest.webmanifest">
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 navigator.serviceWorker.register('service-worker.js');
             });
         }
@@ -57,7 +59,7 @@
         }
 
         // Escucha cambios en el sistema y actualiza si está en auto
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
             if ((sessionStorage.getItem('theme') || 'auto') === 'auto') {
                 applyThemeOnLoad();
             }
@@ -79,23 +81,34 @@
     <div class="container py-5">
         <h2 class="text-center mb-4">
             <img src="assets/img/usat_logo.png" alt="logo" style="width: 90px;">
-            GENERADOR DE CALCULADORA DE PROMEDIO</h2>
+            GENERADOR DE CALCULADORA DE PROMEDIO
+        </h2>
 
         <div class="card p-4 shadow-lg bg-light text-dark" style="border: none; position: relative; overflow: visible;">
             <div class="d-flex flex-column align-items-center justify-content-center" style="gap: 1.2rem;">
                 <div style="position: relative;">
-                    <div id="upload-anim-icon" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; transition: color 0.3s; z-index:3;">
-                        <i class="bi bi-cloud-arrow-up-fill" style="font-size: 3.5rem; color: #d9534f; opacity: 0.7; transition: color 0.3s;"></i>
+                    <div id="upload-anim-icon"
+                        style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; transition: color 0.3s; z-index:3;">
+                        <i class="bi bi-cloud-arrow-up-fill"
+                            style="font-size: 3.5rem; color: #d9534f; opacity: 0.7; transition: color 0.3s;"></i>
                     </div>
-                    <input type="file" class="form-control mb-3" id="pdfFile" accept="application/pdf" style="opacity:0; width: 120px; height: 120px; cursor:pointer; position: absolute; left:0; top:0; z-index:4;" />
-                    <div id="custom-upload-area" style="width: 120px; height: 120px; border: 2.5px dashed #d9534f; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; z-index:2; position:relative;"></div>
-                    <div id="upload-loading" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5;">
+                    <input type="file" class="form-control mb-3" id="pdfFile" accept="application/pdf"
+                        style="opacity:0; width: 120px; height: 120px; cursor:pointer; position: absolute; left:0; top:0; z-index:4;" />
+                    <div id="custom-upload-area"
+                        style="width: 120px; height: 120px; border: 2.5px dashed #d9534f; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; z-index:2; position:relative;">
+                    </div>
+                    <div id="upload-loading"
+                        style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5;">
                         <div class="spinner-border text-warning" style="width:2.5rem; height:2.5rem;"></div>
                     </div>
                 </div>
-                <div id="file-name-area" style="min-height: 1.5em; font-size: 1em; color: #333; font-weight: 500; text-align: center;"></div>
-                <label for="pdfFile" class="form-label text-center" style="font-size: 1.1em; color: #900; font-weight: bold; cursor:pointer;">Sube tu sílabo del curso<br><span style="font-size:0.95em; color:#555; font-weight:normal;">(PDF, arrastra o haz clic en el círculo)</span></label>
-                <button id="btn-generar-calc" class="btn btn-danger w-100" onclick="analizarPDF()" style="font-weight:bold; font-size:1.1em; transition: box-shadow 0.3s, transform 0.3s;">
+                <div id="file-name-area"
+                    style="min-height: 1.5em; font-size: 1em; color: #333; font-weight: 500; text-align: center;"></div>
+                <label for="pdfFile" class="form-label text-center"
+                    style="font-size: 1.1em; color: #900; font-weight: bold; cursor:pointer;">Sube tu sílabo del
+                    curso<br><span style="font-size:0.95em; color:#555; font-weight:normal;">(PDF, arrastra o haz clic
+                        en el círculo)</span></label>
+                <button id="btn-generar-calc" class="btn btn-danger w-100" style="font-weight:bold; font-size:1.1em; transition: box-shadow 0.3s, transform 0.3s;">
                     <i class="bi bi-file-earmark-text"></i> Generar Calculadora
                 </button>
             </div>
@@ -108,8 +121,7 @@
 
     <div class="theme-toggle">
         <label for="theme-select" class="me-1 mb-0"><i class="bi bi-moon-stars"></i></label>
-        <select id="theme-select" class="form-select form-select-sm"
-            style="width: auto; display: inline-block;">
+        <select id="theme-select" class="form-select form-select-sm" style="width: auto; display: inline-block;">
             <option value="auto">Auto</option>
             <option value="light">Claro</option>
             <option value="dark">Oscuro</option>
@@ -119,103 +131,173 @@
     <a href="https://wa.me/51960920160" target="_blank" id="whatsapp-fab" title="Contáctanos por WhatsApp">
         <i class="bi bi-whatsapp"></i>
     </a>
+    <a href="https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing" target="_blank" id="drive-fab" title="Sube tu sílabo a Google Drive" class="btn btn-warning d-flex align-items-center justify-content-center">
+        <i class="fab fa-google-drive" style="font-size: 2.3rem;"></i>
+        <span style="font-size:1.1rem;font-weight:bold;"></span>
+    </a>
     <style>
-    #whatsapp-fab {
-        position: fixed;
-        bottom: 32px;
-        right: 32px;
-        z-index: 99999;
-        width: 64px;
-        height: 64px;
-        background: #25d366;
-        color: #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-        font-size: 2.3rem;
-        transition: box-shadow 0.2s, transform 0.2s;
-        text-decoration: none;
-        border: none;
-    }
-    #whatsapp-fab:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-        transform: scale(1.08);
-        color: #fff;
-        background: #1ebe57;
-    }
+        #whatsapp-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 99999;
+            width: 64px;
+            height: 64px;
+            background: #25d366;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            font-size: 2.3rem;
+            transition: box-shadow 0.2s, transform 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+
+        #whatsapp-fab:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+            transform: scale(1.08);
+            color: #fff;
+            background: #1ebe57;
+        }
+
+        #drive-fab {
+            position: fixed;
+            bottom: 110px;
+            right: 32px;
+            z-index: 99999;
+            width: 64px;
+            height: 64px;
+            background: #ffc107;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            
+            transition: box-shadow 0.2s, transform 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+
+        #drive-fab:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+            transform: scale(1.08);
+            color: #fff;
+            background: #e0a800;
+        }
     </style>
     <script src="js/app.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/db.js"></script>
     <script>
-    function setUploadStatus(status) {
-        // status: 'success', 'error', 'idle'
-        let iconHtml = '';
-        if(status === 'success') iconHtml = '<i class="bi bi-check-circle-fill" style="font-size:3.5rem;color:#28a745;background:#fff;border-radius:50%;box-shadow:0 0 0 6px #fff;"></i>';
-        else if(status === 'error') iconHtml = '<i class="bi bi-x-circle-fill" style="font-size:3.5rem;color:#dc3545;background:#fff;border-radius:50%;box-shadow:0 0 0 6px #fff;"></i>';
-        else iconHtml = '<i class="bi bi-cloud-arrow-up-fill" style="font-size:3.5rem;color:#d9534f;opacity:0.7;"></i>';
-        $('#upload-anim-icon').html(iconHtml);
-    }
-    // Efecto visual al arrastrar archivo
-    $(document).on('dragover', '#custom-upload-area', function(e) {
-        e.preventDefault();
-        $(this).css({'border-color': '#f7b731', 'box-shadow': '0 0 16px 2px #f7b73155'});
-        $('#upload-anim-icon i').css('color', '#f7b731');
-    });
-    $(document).on('dragleave drop', '#custom-upload-area', function(e) {
-        e.preventDefault();
-        $(this).css({'border-color': '#d9534f', 'box-shadow': 'none'});
-        setUploadStatus('idle');
-    });
-    // Drop directo sobre el área
-    $(document).on('drop', '#custom-upload-area', function(e) {
-        e.preventDefault();
-        const files = e.originalEvent.dataTransfer.files;
-        if (files.length > 0 && files[0].type === 'application/pdf') {
-            $('#pdfFile')[0].files = files;
-            $('#custom-upload-area').html('');
-            $('#upload-loading').show();
-            setTimeout(function(){
-                $('#upload-loading').hide();
-                setUploadStatus('success');
-                $('#file-name-area').html('<span style="color:#28a745;">' + files[0].name + '</span>');
-                // Enfatizar el botón
-                $('#btn-generar-calc').css({'box-shadow':'0 0 0 4px #f7b73199','transform':'scale(1.05)'});
-                setTimeout(function(){
-                    $('#btn-generar-calc').css({'box-shadow':'','transform':''});
-                }, 1200);
-            }, 900);
-        } else {
-            setUploadStatus('error');
-            $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
+        function setUploadStatus(status) {
+            // status: 'success', 'error', 'idle'
+            let iconHtml = '';
+            if (status === 'success') iconHtml = '<i class="bi bi-check-circle-fill" style="font-size:3.5rem;color:#28a745;background:#fff;border-radius:50%;box-shadow:0 0 0 6px #fff;"></i>';
+            else if (status === 'error') iconHtml = '<i class="bi bi-x-circle-fill" style="font-size:3.5rem;color:#dc3545;background:#fff;border-radius:50%;box-shadow:0 0 0 6px #fff;"></i>';
+            else iconHtml = '<i class="bi bi-cloud-arrow-up-fill" style="font-size:3.5rem;color:#d9534f;opacity:0.7;"></i>';
+            $('#upload-anim-icon').html(iconHtml);
         }
-    });
-    // Click en el área personalizada abre el input
-    $(document).on('click', '#custom-upload-area', function() {
-        $('#pdfFile').trigger('click');
-    });
-    // Mostrar nombre del archivo seleccionado y animación
-    $(document).on('change', '#pdfFile', function() {
-        if(this.files && this.files[0] && this.files[0].type === 'application/pdf') {
-            $('#custom-upload-area').html('');
-            $('#upload-loading').show();
-            setTimeout(function(){
-                $('#upload-loading').hide();
-                setUploadStatus('success');
-                $('#file-name-area').html('<span style="color:#28a745;">' + $('#pdfFile')[0].files[0].name + '</span>');
-                // Enfatizar el botón
-                $('#btn-generar-calc').css({'box-shadow':'0 0 0 4px #f7b73199','transform':'scale(1.05)'});
-                setTimeout(function(){
-                    $('#btn-generar-calc').css({'box-shadow':'','transform':''});
-                }, 1200);
-            }, 900);
-        } else {
-            setUploadStatus('error');
-            $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
-        }
-    });
-    // Mostrar el ícono correcto al cargar la página
-    $(function(){ setUploadStatus('idle'); });
+        // Efecto visual al arrastrar archivo
+        $(document).on('dragover', '#custom-upload-area', function (e) {
+            e.preventDefault();
+            $(this).css({ 'border-color': '#f7b731', 'box-shadow': '0 0 16px 2px #f7b73155' });
+            $('#upload-anim-icon i').css('color', '#f7b731');
+        });
+        $(document).on('dragleave drop', '#custom-upload-area', function (e) {
+            e.preventDefault();
+            $(this).css({ 'border-color': '#d9534f', 'box-shadow': 'none' });
+            setUploadStatus('idle');
+        });
+        // Drop directo sobre el área
+        $(document).on('drop', '#custom-upload-area', function (e) {
+            e.preventDefault();
+            const files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                $('#pdfFile')[0].files = files;
+                $('#custom-upload-area').html('');
+                $('#upload-loading').show();
+                setTimeout(function () {
+                    $('#upload-loading').hide();
+                    setUploadStatus('success');
+                    $('#file-name-area').html('<span style="color:#28a745;">' + files[0].name + '</span>');
+                    // Enfatizar el botón
+                    $('#btn-generar-calc').css({ 'box-shadow': '0 0 0 4px #f7b73199', 'transform': 'scale(1.05)' });
+                    setTimeout(function () {
+                        $('#btn-generar-calc').css({ 'box-shadow': '', 'transform': '' });
+                    }, 1200);
+                }, 900);
+            } else {
+                setUploadStatus('error');
+                $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
+            }
+        });
+        // Click en el área personalizada abre el input
+        $(document).on('click', '#custom-upload-area', function () {
+            $('#pdfFile').trigger('click');
+        });
+        // Mostrar nombre del archivo seleccionado y animación
+        $(document).on('change', '#pdfFile', function () {
+            if (this.files && this.files[0] && this.files[0].type === 'application/pdf') {
+                $('#custom-upload-area').html('');
+                $('#upload-loading').show();
+                setTimeout(function () {
+                    $('#upload-loading').hide();
+                    setUploadStatus('success');
+                    $('#file-name-area').html('<span style="color:#28a745;">' + $('#pdfFile')[0].files[0].name + '</span>');
+                    // Enfatizar el botón
+                    $('#btn-generar-calc').css({ 'box-shadow': '0 0 0 4px #f7b73199', 'transform': 'scale(1.05)' });
+                    setTimeout(function () {
+                        $('#btn-generar-calc').css({ 'box-shadow': '', 'transform': '' });
+                    }, 1200);
+                }, 900);
+            } else {
+                setUploadStatus('error');
+                $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
+            }
+        });
+        // Mostrar el ícono correcto al cargar la página
+        $(function () { setUploadStatus('idle'); });
+        // Mostrar modal de ayuda al usuario para subir su sílabo
+        Swal.fire({
+            title: '¡Ayúdanos a mejorar!',
+            html: '<div style="display:flex;align-items:center;gap:10px;justify-content:center;">' +
+                '<img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Google_Drive_logo.png" alt="Google Drive" style="width:36px;height:36px;vertical-align:middle;">' +
+                '<span>Sube tu sílabo a este drive:</span>' +
+                '</div>' +
+                '<a href="https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing" target="_blank" style="color:#d9534f;font-weight:bold;display:block;margin-top:10px;">Ir a Google Drive</a>',
+            icon: 'info',
+            confirmButtonText: 'Cerrar',
+            allowOutsideClick: false,
+            showCloseButton: true,
+            timer: undefined,
+            timerProgressBar: false,
+            willClose: () => false
+        });
+        $(document).on('click', '#drive-fab', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: '¿Quieres contribuir con tu sílabo?',
+                html: '<div style="display:flex;align-items:center;gap:10px;justify-content:center;">' +
+                    '<img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Google_Drive_logo.png" alt="Google Drive" style="width:36px;height:36px;vertical-align:middle;">' +
+                    '<span>Ayúdanos a mejorar la calculadora subiendo tu sílabo a nuestro Google Drive. ¡Tu aporte es valioso!</span>' +
+                    '</div>',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Ir a Drive',
+                cancelButtonText: 'Cerrar',
+                allowOutsideClick: true,
+                showCloseButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open('https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing', '_blank');
+                }
+            });
+        });
     </script>
 
 </body>
