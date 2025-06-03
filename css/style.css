@@ -205,7 +205,7 @@ body[data-theme="dark"] select option {
         padding: 6px !important;
     }
 }
-body[data-theme="dark"] img {
+body[data-theme="dark"] img #logo_usat {
     filter: grayscale(1) brightness(10.2) contrast(1.1);
 }
 input.nota::placeholder {
