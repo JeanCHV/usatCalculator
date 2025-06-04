@@ -8,35 +8,42 @@ on:
     branches:
       - main
 
+  # Optionally you can use `workflow_dispatch` to run Changelog CI Manually
+#   workflow_dispatch:
+#     inputs:
+#       release_version:
+#         description: 'Set Release Version'
+#         required: true
+
 jobs:
-  changelog:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      # Checks-out your repository
+      - uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'  # O la versión de Node.js que uses
-
-      - name: Install dependencies
-        run: |
-          npm install
-
-      - name: Changelog CI
+      - name: Run Changelog CI
         uses: saadmk11/changelog-ci@v1.1.2
         with:
+          # Optional, you can provide any name for your changelog file,
+          # We currently support Markdown (.md) and reStructuredText (.rst) files
+          # defaults to `CHANGELOG.md` if not provided.
+          changelog_filename: CHANGELOG.md
+          # Optional, only required when you want more customization
+          # e.g: group your changelog by labels with custom titles,
+          # different version prefix, pull request title and version number regex etc.
+          # config file can be in JSON or YAML format.
+          config_file: changelog-ci-config.json
+          # Optional, This will be used to configure git
+          # defaults to `github-actions[bot]` if not provided.
+          committer_username: 'JeanCHV'
+          committer_email: 'jc_26.10@hotmail.com'
+          # Optional, only required when you want to run Changelog CI
+          # on an event other than `pull_request` event.
+          # In this example `release_version` is fetched from `workflow_dispatch` events input.
+          # You can use any other method to fetch the release version
+          # such as environment variable or from output of another action
+          release_version: ${{ github.event.inputs.release_version }}
+          # Optional
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_type: minor  # Puede ser 'patch', 'minor' o 'major' según lo que necesites
-          changelog_file: CHANGELOG.md  # El archivo donde se generará el changelog
-          commit_messages: 'Conventional Commits'  # Asegúrate de seguir la convención de commits
-          
-      - name: Commit generated changelog
-        uses: EndBug/add-and-commit@v7
-        with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: 'chore(release): update changelog'
-          branch: main
