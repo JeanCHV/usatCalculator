@@ -1,0 +1,42 @@
+name: Generate Changelog
+
+on:
+  push:
+    branches:
+      - main  # Esto asegura que el changelog se genere solo en la rama principal
+  pull_request:
+    branches:
+      - main  # También genera changelogs cuando hay PRs hacia la rama principal
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # O la versión de Node.js que uses en tu proyecto
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Install standard-version
+        run: |
+          npm install --save-dev standard-version
+
+      - name: Generate Changelog
+        run: |
+          npx standard-version --release-as minor  # Cambia 'minor' según el tipo de versión
+
+      - name: Commit changelog and version changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'chore(release): update changelog and version'
+          branch: main  # Rama a la que se hace el commit
