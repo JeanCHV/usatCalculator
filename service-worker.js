@@ -6,6 +6,8 @@ self.addEventListener('install', event => {
         'index.html',
         'css/style.css',
         'js/app.js',
+        'js/utils.js',
+        'js/db.js',
         'assets/img/usat_logo.png',
         'assets/img/usat_logo_red.jpg',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
