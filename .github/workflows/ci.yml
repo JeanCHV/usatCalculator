@@ -37,5 +37,5 @@ jobs:
           config_file: changelog-ci-config.json
           committer_username: 'JeanCHV'
           committer_email: 'jc_26.10@hotmail.com'
-          release_version: ${{ github.event.inputs.release_version }}
+          release_version: ${{ github.event.inputs.release_version || 'v1.0.0' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
