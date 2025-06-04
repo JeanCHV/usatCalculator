@@ -3,12 +3,11 @@ name: Changelog CI
 on:
   push:
     branches:
-      - main  # O tu rama principal de desarrollo
+      - main
   pull_request:
     branches:
       - main
 
-  # Opción para ejecutar manualmente
   workflow_dispatch:
     inputs:
       release_version:
