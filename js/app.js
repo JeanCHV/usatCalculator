@@ -398,28 +398,18 @@ const generarHTML = () => {
         'border': 'none'
     });
     // Asignar eventos con jQuery a los inputs de nota
-    $(".nota").on("input", function() {
-        // Limitar a máximo 2 dígitos y valores entre 0 y 20
+    $(".nota").on("input", function(e) {
         let val = $(this).val();
-        // Eliminar caracteres no numéricos excepto el punto
-        val = val.replace(/[^\d.]/g, '');
-        // Limitar a dos dígitos antes del punto y dos después
-        if (val.includes('.')) {
-            let [ent, dec] = val.split('.');
-            ent = ent.slice(0, 2); // máximo dos dígitos antes del punto
-            dec = dec.slice(0, 2); // máximo dos decimales
-            val = ent + '.' + dec;
-        } else {
-            val = val.slice(0, 2); // máximo dos dígitos
+        let num = val === '' ? '' : parseFloat(val);
+        if (!isNaN(num)) {
+            if (num > 20) num = 20;
+            if (num < 0) num = 0;
+            // Actualizar el valor en el input si está fuera de rango
+            if (num !== parseFloat(val)) {
+                $(this).val(num);
+                val = num;
+            }
         }
-        // Convertir a número y limitar entre 0 y 20
-        let num = parseFloat(val);
-        if (isNaN(num)) num = '';
-        else if (num > 20) num = 20;
-        else if (num < 0) num = 0;
-        $(this).val(num);
-
-        // Buscar el índice de la unidad correspondiente
         const unidadNum = $(this).data("unit");
         const unidadIndex = convertFromRoman(unidadNum) - 1;
         cambiarColorNota(this, unidadIndex);
@@ -428,19 +418,22 @@ const generarHTML = () => {
 
 // Función para cambiar el color del input y calcular el promedio
 function cambiarColorNota(input, unidadIndex) {
-    const valor = parseFloat(input.value);
-    const spanPadre = input.parentElement; // Obtener el span más cercano al input
-    const pesoRelativo = parseFloat(input.getAttribute('data-peso'));
-    
-    if (valor >= 0 && valor <= 13.4) {
-        input.style.backgroundColor = "red";  // Rojo para valores de 0 a 13.4
-        spanPadre.style.backgroundColor = "red";  // Cambiar el color de fondo del span
+    let valor = input.value;
+    valor = valor === '' ? '' : parseFloat(valor);
+    const spanPadre = input.parentElement;
+    // Si el valor es NaN, null, undefined o string vacío, color gray
+    if (valor === '' || isNaN(valor) || valor === null || valor === undefined) {
+        input.style.backgroundColor = "gray";
+        spanPadre.style.backgroundColor = "gray";
+    } else if (valor >= 0 && valor <= 13.4) {
+        input.style.backgroundColor = "red";
+        spanPadre.style.backgroundColor = "red";
     } else if (valor >= 13.5 && valor <= 20) {
-        input.style.backgroundColor = "blue";  // Azul para valores de 13.5 a 20
-        spanPadre.style.backgroundColor = "blue";  // Cambiar el color de fondo del span
+        input.style.backgroundColor = "blue";
+        spanPadre.style.backgroundColor = "blue";
     } else {
-        input.style.backgroundColor = "white";  // Fondo blanco si está fuera de rango
-        spanPadre.style.backgroundColor = "white";  // Cambiar el color de fondo del span
+        input.style.backgroundColor = "gray";
+        spanPadre.style.backgroundColor = "gray";
     }
 
     // Log para ver el valor ingresado en cada input
@@ -509,10 +502,10 @@ function actualizarPromedioFinal() {
     let totalPromedioFinal = 0;
 
     data2.learning_results.forEach(ra => {
-        const raNombre = ra.name; // RA1, RA2, RA3
+        const raNombre = ra.name; // RA1, RA2, RA3, RA4...
         const raPeso = ra.weight;
-        const unidadIndex = ra.unit === "I" ? 0 : ra.unit === "II" ? 1 : 2;
-
+        // Buscar el índice de la unidad correspondiente de forma dinámica
+        const unidadIndex = convertFromRoman(ra.unit) - 1;
         const unidadPromedio = parseFloat($(`#promedioUnidad${unidadIndex + 1}`).text());
 
         // Calculamos el promedio ponderado de cada RA
@@ -521,7 +514,7 @@ function actualizarPromedioFinal() {
         console.log(`RA: ${raNombre} (Unidad ${ra.unit}) - Promedio unidad: ${unidadPromedio}, Peso: ${raPeso}, Parcial: ${unidadPromedio * raPeso}`);
     });
 
-    const promedioFinal = totalPromedioFinal.toFixed(2); // Promedio final calculado
+    const promedioFinal = totalPromedioFinal.toFixed(4); // Promedio final calculado
     // Log para ver el promedio final
     console.log('Promedio final calculado:', promedioFinal);
     $("#promedio-final").text(promedioFinal);
@@ -537,6 +530,33 @@ function convertToRoman(num) {
 function convertFromRoman(roman) {
     const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
     return romanNumerals.indexOf(roman) + 1;
+}
+
+// Función para obtener las notas de cada unidad y mostrarlas en consola como array
+function debugNotasPorUnidad() {
+    if (!data1 || !data1.unidades) {
+        console.log('No hay datos de unidades disponibles.');
+        return;
+    }
+    const notasPorUnidad = data1.unidades.map((unidad, unidadIndex) => {
+        const notasIndicadores = unidad.indicadores_detalles.map((indicador) => {
+            const notasEvidencias = indicador.evidencia_detalle.map((ev, idx) => {
+                const selector = `.nota[data-unit=\"${convertToRoman(unidadIndex + 1)}\"][data-indicador=\"${indicador.codigo}\"]`;
+                const input = $(selector)[idx];
+                return input ? parseFloat($(input).val()) || 0 : null;
+            });
+            return {
+                indicador: indicador.codigo,
+                notas: notasEvidencias
+            };
+        });
+        return {
+            unidad: unidad.unidad,
+            indicadores: notasIndicadores
+        };
+    });
+    console.log('Notas por unidad:', notasPorUnidad);
+    return notasPorUnidad;
 }
 
 // Asignar evento al botón de generar calculadora

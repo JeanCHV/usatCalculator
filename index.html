@@ -298,6 +298,26 @@
                 }
             });
         });
+        $(document).ready(function() {
+    if (!localStorage.getItem('changelog_v1.1_shown')) {
+        Swal.fire({
+            title: 'Novedades de la versión 1.1',
+            html: `<ul style="text-align:left;">
+                <li>Las notas ahora se ajustan automáticamente a 0 si son menores a 0 y a 20 si son mayores a 20.</li>
+                <li>Mejoras visuales y de experiencia de usuario.</li>
+                <li>Corrección de validaciones en los campos de nota.</li>
+            </ul>`,
+            icon: 'info',
+            confirmButtonText: '¡Entendido!',
+            customClass: {
+                popup: 'swal2-popup-custom',
+                title: 'swal2-title-custom',
+                htmlContainer: 'swal2-html-custom'
+            }
+        });
+        localStorage.setItem('changelog_v1.1_shown', 'true');
+    }
+});
     </script>
 
 </body>

@@ -166,12 +166,131 @@ deleteRequest.onsuccess = deleteRequest.onerror = deleteRequest.onblocked = func
             saveArray('ASIGNATURA_INDICADORES', indicadores);
             saveArray('ASIGNATURA_INDICADORES_DETALLES', indicadoresDetalle);
             saveArray('EVIDENCIA_dETALLES', evidenciaDetalle);
-            Swal.close();
+            //Swal.close();
             console.log('Datos guardados en IndexedDB');
         };
         request.onerror = function(event) {
-            Swal.close();
+            //Swal.close();
             console.error('Error al abrir IndexedDB', event);
         };
     });
 };
+
+
+
+
+// Buscar asignaturas por nombre en IndexedDB
+function getAsignaturas(nombre) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('USAT_CALCULATOR_DB', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const tx = db.transaction('ASIGNATURA', 'readonly');
+            const store = tx.objectStore('ASIGNATURA');
+            const results = [];
+            const cursorRequest = store.openCursor();
+            cursorRequest.onsuccess = function(e) {
+                const cursor = e.target.result;
+                if (cursor) {
+                    if (cursor.value.nombre && cursor.value.nombre.toLowerCase().includes(nombre.toLowerCase())) {
+                        results.push(cursor.value);
+                    }
+                    cursor.continue();
+                } else {
+                    resolve(results);
+                }
+            };
+            cursorRequest.onerror = function(e) {
+                reject(e);
+            };
+        };
+        request.onerror = function(e) {
+            reject(e);
+        };
+    });
+}
+
+// Buscar id_facultad por nombre en IndexedDB
+function getIDFacultad(nombre) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('USAT_CALCULATOR_DB', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const tx = db.transaction('FACULTAD', 'readonly');
+            const store = tx.objectStore('FACULTAD');
+            const cursorRequest = store.openCursor();
+            cursorRequest.onsuccess = function(e) {
+                const cursor = e.target.result;
+                if (cursor) {
+                    if (cursor.value.nombre && cursor.value.nombre.toLowerCase() === nombre.toLowerCase()) {
+                        resolve(cursor.value.id_facultad);
+                        return;
+                    }
+                    cursor.continue();
+                } else {
+                    resolve(null); // No encontrado
+                }
+            };
+            cursorRequest.onerror = function(e) {
+                reject(e);
+            };
+        };
+        request.onerror = function(e) {
+            reject(e);
+        };
+    });
+}
+
+// Buscar id_escuela por nombre en IndexedDB
+function getIDEscuela(nombre) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('USAT_CALCULATOR_DB', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const tx = db.transaction('ESCUELA', 'readonly');
+            const store = tx.objectStore('ESCUELA');
+            const cursorRequest = store.openCursor();
+            cursorRequest.onsuccess = function(e) {
+                const cursor = e.target.result;
+                if (cursor) {
+                    if (cursor.value.nombre && cursor.value.nombre.toLowerCase() === nombre.toLowerCase()) {
+                        resolve(cursor.value.id_escuela);
+                        return;
+                    }
+                    cursor.continue();
+                } else {
+                    resolve(null); // No encontrado
+                }
+            };
+            cursorRequest.onerror = function(e) {
+                reject(e);
+            };
+        };
+        request.onerror = function(e) {
+            reject(e);
+        };
+    });
+}
+
+// Buscar sistema de calificación por id_asignatura en IndexedDB
+function getAsignaturaSistemaCalificacion(id_asignatura) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('USAT_CALCULATOR_DB', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const tx = db.transaction('ASIGNATURA_SISTEMA_cALIFICACIÓN', 'readonly');
+            const store = tx.objectStore('ASIGNATURA_SISTEMA_cALIFICACIÓN');
+            const getRequest = store.get(id_asignatura);
+            getRequest.onsuccess = function(e) {
+                resolve(getRequest.result || null);
+            };
+            getRequest.onerror = function(e) {
+                reject(e);
+            };
+        };
+        request.onerror = function(e) {
+            reject(e);
+        };
+    });
+}
+
