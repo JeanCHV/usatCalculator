@@ -3,10 +3,10 @@ name: Generate Changelog
 on:
   push:
     branches:
-      - main  # Esto asegura que el changelog se genere solo en la rama principal
+      - main  # O tu rama principal de desarrollo
   pull_request:
     branches:
-      - main  # También genera changelogs cuando hay PRs hacia la rama principal
+      - main
 
 jobs:
   changelog:
@@ -45,4 +45,3 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'chore(release): update changelog and version'
           branch: main
-
