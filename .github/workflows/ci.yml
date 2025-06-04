@@ -8,7 +8,7 @@ on:
     branches:
       - main
 
-  # Optionally you can use `workflow_dispatch` to run Changelog CI Manually
+  # Opción para ejecutar manualmente
   workflow_dispatch:
     inputs:
       release_version:
@@ -20,21 +20,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository
+      # Revisa el repositorio
       - uses: actions/checkout@v2
 
+      # Configura la identidad de git
+      - name: Set Git identity
+        run: |
+          git config --global user.name "JeanCHV"
+          git config --global user.email "jc_26.10@hotmail.com"
+
+      # Ejecuta el Changelog CI
       - name: Run Changelog CI
         uses: saadmk11/changelog-ci@v1.1.2
         with:
-          # Optional, you can provide any name for your changelog file,
-          # We currently support Markdown (.md) and reStructuredText (.rst) files
           changelog_filename: CHANGELOG.md
-          # Configuración personalizada para organizar el changelog
           config_file: changelog-ci-config.json
-          # Configura el autor para los commits de changelog
           committer_username: 'JeanCHV'
           committer_email: 'jc_26.10@hotmail.com'
-          # Entrada manual de la versión de lanzamiento
           release_version: ${{ github.event.inputs.release_version }}
-          # Token de GitHub para autenticarse
           github_token: ${{ secrets.GITHUB_TOKEN }}
