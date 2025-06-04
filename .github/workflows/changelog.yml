@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'  # O la versión de Node.js que uses en tu proyecto
+          node-version: '14'  # O la versión de Node.js que uses
 
       - name: Install dependencies
         run: |
@@ -31,7 +31,12 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          npx standard-version --release-as minor  # Cambia 'minor' según el tipo de versión
+          npx standard-version --release-as minor
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Commit changelog and version changes
         uses: EndBug/add-and-commit@v7
@@ -39,4 +44,5 @@ jobs:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'chore(release): update changelog and version'
-          branch: main  # Rama a la que se hace el commit
+          branch: main
+
