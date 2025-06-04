@@ -35,13 +35,13 @@ jobs:
 
       - name: Configure Git user
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "JeanCHV"
+          git config user.email "jc_26.10@hotmail.com"
 
       - name: Commit changelog and version changes
         uses: EndBug/add-and-commit@v7
         with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
+          author_name: 'JeanCHV'  # Reemplaza con tu nombre de usuario de GitHub
+          author_email: 'jc_26.10@hotmail.com'  # Reemplaza con tu correo de GitHub
           message: 'chore(release): update changelog and version'
           branch: main
