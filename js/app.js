@@ -63,6 +63,54 @@ const analizarPDF = async () => {
                 const textoExtraidoUnidades = textoCompleto.substring(inicioUnidades, finUnidades).trim();
                 const textoExtraidoCalificacion = textoCompleto.substring(inicioCalificacion, finReferencias).trim();
 
+                // Extraer datos entre corchetes y mostrarlos en consola como JSON
+                const extraerEntreCorchetes = (texto, patron) => {
+                    const regex = new RegExp(patron + "\\s*\\[([^\]]+)\\]", "i");
+                    const match = texto.match(regex);
+                    return match ? match[1].trim() : null;
+                };
+                const extraerPorPrefijo = (texto, prefijo) => {
+                    const idx = texto.indexOf(prefijo);
+                    if (idx === -1) return null;
+                    const sub = texto.substring(idx + prefijo.length);
+                    const corcheteIni = sub.indexOf("[");
+                    const corcheteFin = sub.indexOf("]");
+                    if (corcheteIni === -1 || corcheteFin === -1) return null;
+                    return sub.substring(corcheteIni + 1, corcheteFin).trim();
+                };
+                // Extracción mejorada para delimitadores conocidos
+                const extraerFacultad = (texto) => {
+                    const ini = texto.indexOf("FACULTAD DE");
+                    if (ini === -1) return null;
+                    const sub = texto.substring(ini + "FACULTAD DE".length);
+                    const fin = sub.indexOf("PROGRAMA DE ESTUDIOS DE");
+                    return fin === -1 ? sub.trim() : sub.substring(0, fin).trim();
+                };
+                const extraerEscuela = (texto) => {
+                    const ini = texto.indexOf("PROGRAMA DE ESTUDIOS DE");
+                    if (ini === -1) return null;
+                    const sub = texto.substring(ini + "PROGRAMA DE ESTUDIOS DE".length);
+                    const fin = sub.indexOf("SÍLABO");
+                    return fin === -1 ? sub.trim() : sub.substring(0, fin).trim();
+                };
+                const extraerPorPrefijoTextoPlano = (texto, prefijo) => {
+                    const idx = texto.indexOf(prefijo);
+                    if (idx === -1) return null;
+                    let sub = texto.substring(idx + prefijo.length).trim();
+                    // Tomar hasta salto de línea, punto y coma, o máximo 100 caracteres
+                    let fin = sub.search(/[\n\r;\[]|\d+\./); // hasta salto de línea, punto y coma, corchete o inicio de sección tipo '1.2'
+                    if (fin === -1) fin = sub.length;
+                    return sub.substring(0, fin).trim();
+                };
+                const datosCapturados = {
+                    facultad: extraerFacultad(textoCompleto),
+                    escuela: extraerEscuela(textoCompleto),
+                    asignatura: extraerPorPrefijoTextoPlano(textoCompleto, "1.1 Asignatura:"),
+                    plan_estudios: extraerPorPrefijoTextoPlano(textoCompleto, "1.3 Ciclo del plan de estudios:"),
+                    semestre: extraerPorPrefijoTextoPlano(textoCompleto, "1.9 Semestre académico:")
+                };
+                console.log("Datos extraídos:", JSON.stringify(datosCapturados, null, 2));
+
                 // Actualizar mensaje de loading
                 Swal.update({
                     title: 'Enviando datos a API',
@@ -395,12 +443,14 @@ function cambiarColorNota(input, unidadIndex) {
         spanPadre.style.backgroundColor = "white";  // Cambiar el color de fondo del span
     }
 
+    // Log para ver el valor ingresado en cada input
+    console.log(`Nota ingresada en unidad ${unidadIndex + 1}:`, valor);
+
     // Calcular el promedio de la unidad
     actualizarPromedioUnidad(unidadIndex);
     // Actualizar promedio final
     actualizarPromedioFinal();
 }
-
 
 // Función para actualizar el promedio de la unidad
 function actualizarPromedioUnidad(unidadIndex) {
@@ -425,10 +475,14 @@ function actualizarPromedioUnidad(unidadIndex) {
                 const valor = parseFloat($(input).val()) || 0;
                 sumaNotas += valor;
                 cantidadNotas++;
+                // Log para ver cada nota de evidencia
+                console.log(`Unidad ${unidadIndex + 1} - Indicador ${indicador.codigo} - Evidencia:`, valor);
             }
         });
 
         const promedioIndicador = cantidadNotas > 0 ? (sumaNotas / cantidadNotas) : 0;
+        // Log para ver el promedio de cada indicador
+        console.log(`Unidad ${unidadIndex + 1} - Indicador ${indicador.codigo} - Promedio indicador:`, promedioIndicador, 'Peso:', pesoIndicador);
 
         promedioUnidad += promedioIndicador * pesoIndicador;
     });
@@ -436,6 +490,9 @@ function actualizarPromedioUnidad(unidadIndex) {
     // Actualizar el promedio en el HTML
     const promedioElemento = $(`#promedioUnidad${unidadIndex + 1}`);
     promedioElemento.text(promedioUnidad.toFixed(2));
+
+    // Log para ver el promedio de la unidad
+    console.log(`Promedio calculado para unidad ${unidadIndex + 1}:`, promedioUnidad);
 
     // Cambiar color según promedio
     if (promedioUnidad < 13.5) {
@@ -446,7 +503,6 @@ function actualizarPromedioUnidad(unidadIndex) {
         promedioElemento.parent().css('background-color', 'blue');
     }
 }
-
 
 // Función para calcular y actualizar el promedio final
 function actualizarPromedioFinal() {
@@ -461,9 +517,13 @@ function actualizarPromedioFinal() {
 
         // Calculamos el promedio ponderado de cada RA
         totalPromedioFinal += (unidadPromedio * raPeso);
+        // Log para ver el aporte de cada RA al promedio final
+        console.log(`RA: ${raNombre} (Unidad ${ra.unit}) - Promedio unidad: ${unidadPromedio}, Peso: ${raPeso}, Parcial: ${unidadPromedio * raPeso}`);
     });
 
     const promedioFinal = totalPromedioFinal.toFixed(2); // Promedio final calculado
+    // Log para ver el promedio final
+    console.log('Promedio final calculado:', promedioFinal);
     $("#promedio-final").text(promedioFinal);
 }
 
