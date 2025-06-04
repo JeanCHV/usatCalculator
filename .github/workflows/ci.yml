@@ -28,22 +28,13 @@ jobs:
         with:
           # Optional, you can provide any name for your changelog file,
           # We currently support Markdown (.md) and reStructuredText (.rst) files
-          # defaults to `CHANGELOG.md` if not provided.
           changelog_filename: CHANGELOG.md
-          # Optional, only required when you want more customization
-          # e.g: group your changelog by labels with custom titles,
-          # different version prefix, pull request title and version number regex etc.
-          # config file can be in JSON or YAML format.
+          # Configuración personalizada para organizar el changelog
           config_file: changelog-ci-config.json
-          # Optional, This will be used to configure git
-          # defaults to `github-actions[bot]` if not provided.
+          # Configura el autor para los commits de changelog
           committer_username: 'JeanCHV'
           committer_email: 'jc_26.10@hotmail.com'
-          # Optional, only required when you want to run Changelog CI
-          # on an event other than `pull_request` event.
-          # In this example `release_version` is fetched from `workflow_dispatch` events input.
-          # You can use any other method to fetch the release version
-          # such as environment variable or from output of another action
+          # Entrada manual de la versión de lanzamiento
           release_version: ${{ github.event.inputs.release_version }}
-          # Optional
+          # Token de GitHub para autenticarse
           github_token: ${{ secrets.GITHUB_TOKEN }}

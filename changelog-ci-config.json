@@ -1,0 +1,13 @@
+{
+  "versioning": {
+    "prefix": "v",
+    "version_regex": "^v?(\\d+\\.\\d+\\.\\d+)$"
+  },
+  "group_by_labels": true,
+  "labels": {
+    "feature": "Features",
+    "bug": "Bug Fixes",
+    "documentation": "Documentation"
+  },
+  "header": "Changelog for USAT Calculator Project"
+}
