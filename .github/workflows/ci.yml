@@ -1,0 +1,42 @@
+name: Generate Changelog
+
+on:
+  push:
+    branches:
+      - main  # O tu rama principal de desarrollo
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # O la versión de Node.js que uses
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Run Changelog CI
+        uses: changelog-ci-action/changelog-ci-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_type: minor  # Puede ser 'patch', 'minor' o 'major' según lo que necesites
+          changelog_file: CHANGELOG.md  # El archivo donde se generará el changelog
+          commit_messages: 'Conventional Commits'  # Asegúrate de seguir la convención de commits
+          
+      - name: Commit generated changelog
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'chore(release): update changelog'
+          branch: main
