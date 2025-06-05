@@ -268,69 +268,107 @@ const generarHTML = () => {
         html2canvas(document.querySelector("#body-content"), {backgroundColor: null}).then(async function(canvas) {
             canvas.toBlob(async function(blob) {
                 await Swal.close();
-                if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'calculadora_usat.png', { type: blob.type })] })) {
-                    try {
-                        await navigator.share({
-                            files: [new File([blob], 'calculadora_usat.png', { type: blob.type })],
-                            title: 'Calculadora USAT',
-                            text: 'Te comparto el avance del promedio final generado con la Calculadora USAT.'
-                        });
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Compartido!',
-                            text: 'La imagen fue compartida exitosamente.',
-                            confirmButtonColor: '#28a745',
-                            background: '#f8f9fa',
-                            customClass: {
-                                title: 'swal2-title-custom',
-                                popup: 'swal2-popup-custom',
-                                htmlContainer: 'swal2-html-custom'
-                            },
-                            timer: 2000
-                        });
-                    } catch (err) {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Compartir cancelado',
-                            text: 'No se completó el proceso de compartir.',
-                            confirmButtonColor: '#6c757d',
-                            background: '#f8f9fa',
-                            customClass: {
-                                title: 'swal2-title-custom',
-                                popup: 'swal2-popup-custom',
-                                htmlContainer: 'swal2-html-custom'
-                            },
-                            timer: 2000
-                        });
-                    }
-                } else {
-                    // Fallback: descarga
-                    var link = document.createElement('a');
-                    link.download = 'calculadora_usat.png';
-                    link.href = canvas.toDataURL();
-                    link.click();
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Descargado',
-                        html: '<b>Tu imagen se ha descargado.</b><br><small>Si quieres compartirla, búscala en tu carpeta de descargas y envíala por tu app favorita.</small>',
-                        confirmButtonColor: '#007bff',
-                        background: '#f8f9fa',
-                        customClass: {
-                            title: 'swal2-title-custom',
-                            popup: 'swal2-popup-custom',
-                            htmlContainer: 'swal2-html-custom'
-                        },
-                        timer: 3500
-                    });
+                // Opción de copiar al portapapeles (Clipboard API)
+                let clipboardSupported = (navigator.clipboard && window.ClipboardItem);
+                let showCopy = clipboardSupported;
+                let showShare = (navigator.canShare && navigator.canShare({ files: [new File([blob], 'calculadora_usat.png', { type: blob.type })] }));
+                let buttonsHtml = '';
+                if (showCopy) {
+                    buttonsHtml += '<button id="btn-copy-img" class="btn btn-primary m-2"><i class="bi bi-clipboard"></i> Copiar imagen</button>';
                 }
+                if (showShare) {
+                    buttonsHtml += '<button id="btn-share-img" class="btn btn-success m-2"><i class="bi bi-share"></i> Compartir</button>';
+                }
+                buttonsHtml += '<button id="btn-download-img" class="btn btn-secondary m-2"><i class="bi bi-download"></i> Descargar</button>';
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Imagen generada',
+                    html: '<b>¿Qué deseas hacer con la imagen?</b><br>' + buttonsHtml + '<br><small>Si quieres compartirla, búscala en tu carpeta de descargas o usa las opciones disponibles.</small>',
+                    showConfirmButton: false,
+                    background: '#f8f9fa',
+                    customClass: {
+                        title: 'swal2-title-custom',
+                        popup: 'swal2-popup-custom',
+                        htmlContainer: 'swal2-html-custom'
+                    },
+                    didOpen: () => {
+                        // Copiar imagen al portapapeles
+                        if (showCopy) {
+                            document.getElementById('btn-copy-img').onclick = async function() {
+                                try {
+                                    await navigator.clipboard.write([
+                                        new window.ClipboardItem({ [blob.type]: blob })
+                                    ]);
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Copiado!',
+                                        text: 'La imagen se copió al portapapeles. Puedes pegarla en cualquier chat o documento.',
+                                        timer: 1800,
+                                        showConfirmButton: false
+                                    });
+                                } catch (err) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'No se pudo copiar la imagen. Prueba en un navegador compatible.',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            };
+                        }
+                        // Compartir imagen
+                        if (showShare) {
+                            document.getElementById('btn-share-img').onclick = async function() {
+                                try {
+                                    await navigator.share({
+                                        files: [new File([blob], 'calculadora_usat.png', { type: blob.type })],
+                                        title: 'Calculadora USAT',
+                                        text: 'Te comparto el avance del promedio final generado con la Calculadora USAT.'
+                                    });
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Compartido!',
+                                        text: 'La imagen fue compartida exitosamente.',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                } catch (err) {
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'Compartir cancelado',
+                                        text: 'No se completó el proceso de compartir.',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            };
+                        }
+                        // Descargar imagen
+                        document.getElementById('btn-download-img').onclick = function() {
+                            var link = document.createElement('a');
+                            link.download = 'calculadora_usat.png';
+                            link.href = canvas.toDataURL();
+                            link.click();
+                        };
+                    }
+                });
             }, 'image/png');
         });
+    });
+
+    // Botón para calcular notas mínimas necesarias
+    if ($("#btn-minimas-necesarias").length === 0) {
+        $("#body-content").prepend('<button id="btn-minimas-necesarias" class="btn btn-warning mb-3"><i class="bi bi-calculator"></i> ¿Qué nota necesito para aprobar?</button>');
+    }
+    $("#btn-minimas-necesarias").off("click").on("click", function() {
+        calcularNotasMinimasNecesarias();
     });
 
     // Mejoras visuales generales para la UI dinámica
     $("#body-content .card").addClass("shadow-lg border-0 mb-4");
     $("#body-content .card-header").css({
-        'background': 'linear-gradient(90deg, #d9534f 60%, #f7b731 100%)',
+        'background': '#D9534F',
         'color': 'white',
         'fontWeight': 'bold',
         'fontSize': '1.1em',
@@ -353,7 +391,7 @@ const generarHTML = () => {
         'borderRadius': '6px'
     });
     $("#body-content .list-group-item-danger").css({
-        'background': 'linear-gradient(90deg, #d9534f 60%, #f7b731 100%)',
+        'background': '#D9534F',
         'color': 'white',
         'fontWeight': 'bold'
     });
@@ -518,6 +556,22 @@ function actualizarPromedioFinal() {
     // Log para ver el promedio final
     console.log('Promedio final calculado:', promedioFinal);
     $("#promedio-final").text(promedioFinal);
+
+    // Cambiar color dinámicamente según el promedio final
+    const finalAverageDiv = $(".final-average");
+    if (parseFloat(promedioFinal) < 13.5) {
+        finalAverageDiv.css({
+            'background': 'linear-gradient(90deg, #900 60%, #f7b731 100%)',
+            'color': 'white',
+            'boxShadow': '0 2px 8px rgba(144,0,0,0.15)'
+        });
+    } else {
+        finalAverageDiv.css({
+            'background': 'linear-gradient(90deg, #0074D9 60%, #f7b731 100%)',
+            'color': 'white',
+            'boxShadow': '0 2px 8px rgba(0,116,217,0.15)'
+        });
+    }
 }
 
 // Función para convertir un número entero a su equivalente en número romano
@@ -557,6 +611,140 @@ function debugNotasPorUnidad() {
     });
     console.log('Notas por unidad:', notasPorUnidad);
     return notasPorUnidad;
+}
+
+// Calcula y muestra las notas mínimas necesarias para aprobar considerando el promedio final ponderado
+function calcularNotasMinimasNecesarias() {
+    const NOTA_APROBATORIA = 13.5;
+    let detalles = [];
+    let puedeAprobar = true;
+    let unidadesPendientes = [];
+    // 1. Recolectar info de inputs y pesos
+    data1.unidades.forEach((unidad, unidadIndex) => {
+        let sumaPesos = 0;
+        let sumaNotas = 0;
+        let faltanInputs = [];
+        let totalInputs = 0;
+        let detallesInputs = [];
+        unidad.indicadores_detalles.forEach((indicador) => {
+            indicador.evidencia_detalle.forEach((ev, idx) => {
+                const selector = `.nota[data-unit=\"${convertToRoman(unidadIndex + 1)}\"][data-indicador=\"${indicador.codigo}\"]`;
+                const input = $(selector)[idx];
+                let valor = input ? parseFloat($(input).val()) : null;
+                if (valor !== null && !isNaN(valor)) {
+                    sumaNotas += valor;
+                    detallesInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor, pendiente: false});
+                } else {
+                    faltanInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia});
+                    detallesInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor: null, pendiente: true});
+                }
+                totalInputs++;
+            });
+        });
+        unidadesPendientes.push({
+            unidadIndex,
+            unidad,
+            sumaNotas,
+            totalInputs,
+            faltanInputs,
+            detallesInputs
+        });
+    });
+    // 2. Calcular las notas mínimas necesarias para aprobar el promedio final ponderado
+    // a) Obtener pesos de cada unidad (RA)
+    let pesosUnidades = {};
+    data2.learning_results.forEach(result => {
+        const unidadNum = result.unit; // I, II, III...
+        pesosUnidades[unidadNum] = result.weight;
+    });
+    // b) Calcular el promedio final actual y cuántos campos faltan en total
+    let promedioFinalActual = 0;
+    let totalFaltantes = 0;
+    let faltantesGlobal = [];
+    unidadesPendientes.forEach((u, idx) => {
+        const unidadNum = convertToRoman(idx + 1);
+        const pesoUnidad = pesosUnidades[unidadNum] || 0;
+        let cantidadLlenos = u.totalInputs - u.faltanInputs.length;
+        let promedioUnidad = cantidadLlenos > 0 ? u.sumaNotas / cantidadLlenos : 0;
+        if (u.faltanInputs.length === 0) {
+            promedioFinalActual += promedioUnidad * pesoUnidad;
+        } else {
+            totalFaltantes += u.faltanInputs.length;
+            faltantesGlobal.push({unidadIndex: idx, pesoUnidad, faltanInputs: u.faltanInputs, totalInputs: u.totalInputs, sumaNotas: u.sumaNotas, cantidadLlenos});
+        }
+    });
+    // c) Calcular la nota mínima global que debe ir en cada campo pendiente para llegar a 13.5 en el promedio final
+    let notaMinimaGlobal = null;
+    if (totalFaltantes > 0) {
+        // Sea x la nota a poner en cada campo pendiente
+        // promedioFinal = promedioFinalActual + sum(pesoUnidad * promedioUnidadPendiente)
+        // promedioUnidadPendiente = (sumaNotas + x * faltantes) / totalInputs
+        // promedioFinal = ... >= 13.5
+        // Resolvemos para x:
+        // promedioFinal = promedioFinalActual + sum( pesoUnidad * (sumaNotas + x * faltantes) / totalInputs )
+        // promedioFinal >= 13.5
+        // x = (13.5 - promedioFinalActual - sum( pesoUnidad * sumaNotas / totalInputs )) / sum( pesoUnidad * faltantes / totalInputs )
+        let sumPesosNotas = 0;
+        let sumPesosFaltantes = 0;
+        faltantesGlobal.forEach(fg => {
+            sumPesosNotas += fg.pesoUnidad * (fg.sumaNotas / fg.totalInputs);
+            sumPesosFaltantes += fg.pesoUnidad * (fg.faltanInputs.length / fg.totalInputs);
+        });
+        notaMinimaGlobal = (NOTA_APROBATORIA - promedioFinalActual - sumPesosNotas) / (sumPesosFaltantes || 1);
+        notaMinimaGlobal = Math.max(0, Math.min(20, notaMinimaGlobal));
+        if (notaMinimaGlobal > 20) puedeAprobar = false;
+    }
+    // 3. Mostrar detalle por campo
+    let mensaje = '';
+    if (totalFaltantes === 0) {
+        mensaje = '<div class="alert alert-success text-center mb-0"><b>¡Ya tienes todas las notas ingresadas!</b></div>';
+    } else {
+        mensaje = '<div class="mb-2"><b>Notas mínimas necesarias para aprobar cada campo (considerando el promedio final 13.5):</b></div>';
+        unidadesPendientes.forEach((u, idx) => {
+            mensaje += `<div class='mb-2'><b>${u.unidad.unidad}</b><ul class='list-group mt-1'>`;
+            u.detallesInputs.forEach(d => {
+                mensaje += `<li class='list-group-item d-flex justify-content-between align-items-center ${d.pendiente ? 'list-group-item-warning' : 'list-group-item-success'}'>
+                    <span><b>${d.indicador}</b> - ${d.evidencia}</span>
+                    <span>${d.pendiente ? `<span class='badge bg-warning text-dark'>Necesitas ${notaMinimaGlobal !== null ? notaMinimaGlobal.toFixed(2) : '--'}</span>` : `<span class='badge bg-success'>${d.valor.toFixed(2)}</span>`}</span>
+                </li>`;
+            });
+            mensaje += '</ul></div>';
+        });
+        if (!puedeAprobar) {
+            mensaje += '<div class="alert alert-danger text-center">Con las notas actuales, <b>no es posible aprobar</b> aunque saques 20 en los campos pendientes.</div>';
+        } else {
+            mensaje += '<div class="alert alert-info text-center mb-0">El cálculo es estimado y supone que el resto de notas se mantienen igual. El promedio final debe ser al menos 13.5.</div>';
+        }
+        // Botón para llenar automáticamente los campos pendientes
+        mensaje += `<div class='d-flex justify-content-center mt-3'><button id='btn-autollenar-minimas' class='btn btn-outline-primary'><i class='bi bi-magic'></i> Llenar campos con notas mínimas</button></div>`;
+    }
+    Swal.fire({
+        icon: 'info',
+        title: '<i class="bi bi-clipboard2-check"></i> Notas mínimas necesarias',
+        html: mensaje,
+        confirmButtonText: 'Cerrar',
+        background: '#f8f9fa',
+        customClass: {
+            title: 'swal2-title-custom',
+            popup: 'swal2-popup-custom',
+            htmlContainer: 'swal2-html-custom'
+        },
+        didOpen: () => {
+            // Llenar automáticamente los campos pendientes
+            $("#btn-autollenar-minimas").on("click", function() {
+                if (notaMinimaGlobal !== null && puedeAprobar) {
+                    unidadesPendientes.forEach(u => {
+                        u.detallesInputs.forEach(d => {
+                            if (d.pendiente && d.input) {
+                                $(d.input).val(notaMinimaGlobal.toFixed(2)).trigger('input');
+                            }
+                        });
+                    });
+                }
+                Swal.close();
+            });
+        }
+    });
 }
 
 // Asignar evento al botón de generar calculadora

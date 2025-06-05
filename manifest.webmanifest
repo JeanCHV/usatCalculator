@@ -3,8 +3,8 @@
   "short_name": "USATCalc",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#900",
-  "theme_color": "#900",
+  "background_color": "#D9534F",
+  "theme_color": "#D9534F",
   "description": "Generador de calculadora de promedio para USAT.",
   "icons": [
     {

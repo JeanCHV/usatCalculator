@@ -111,7 +111,7 @@ body[data-theme="dark"] .card {
     color: #f1f1f1 !important;
 }
 body[data-theme="dark"] .card-header {
-    background: #900 !important;
+    background: #D9534F !important;
     color: #fff !important;
 }
 body[data-theme="dark"] .list-group-item,
@@ -215,4 +215,70 @@ input.nota::placeholder {
 body[data-theme="dark"] input.nota::placeholder {
     color: #fff !important;
     opacity: 1;
+}
+#file-name-area {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+/* --- DRAG & DROP AREA ANIMATIONS --- */
+#custom-upload-area {
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.4s;
+    background: linear-gradient(135deg, #fff 60%, #f7b73122 100%);
+    animation: dropIdle 2.5s infinite alternate;
+}
+#custom-upload-area.dragover {
+    border-color: #f7b731 !important;
+    box-shadow: 0 0 24px 6px #f7b73155, 0 0 0 8px #fff inset;
+    background: linear-gradient(135deg, #fff 40%, #f7b73155 100%);
+    animation: dropPulse 0.7s;
+}
+@keyframes dropPulse {
+    0% { box-shadow: 0 0 0 0 #f7b73155; }
+    70% { box-shadow: 0 0 32px 12px #f7b73155; }
+    100% { box-shadow: 0 0 24px 6px #f7b73155; }
+}
+@keyframes dropIdle {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+#custom-upload-area .drag-anim {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    opacity: 0.18;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f7b731 0%, #fff0 70%);
+    animation: dragWave 1.2s infinite linear;
+    display: none;
+}
+#custom-upload-area.dragover .drag-anim {
+    display: block;
+}
+@keyframes dragWave {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.18; }
+    70% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.10; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.18; }
+}
+#custom-upload-area.success {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 16px 2px #28a74555;
+    background: linear-gradient(135deg, #fff 60%, #28a74522 100%);
+    animation: none;
+}
+#custom-upload-area.error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 16px 2px #dc354555;
+    background: linear-gradient(135deg, #fff 60%, #dc354522 100%);
+    animation: none;
 }
