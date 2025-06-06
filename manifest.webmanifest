@@ -4,6 +4,7 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FE0000",
+  "always_update": true,
   "theme_color": "#FE0000",
   "description": "Simulador de calificación de la USAT",
   "icons": [
