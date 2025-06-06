@@ -3,9 +3,9 @@
   "short_name": "USATCalc",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#D9534F",
-  "theme_color": "#D9534F",
-  "description": "Generador de calculadora de promedio para USAT.",
+  "background_color": "#FE0000",
+  "theme_color": "#FE0000",
+  "description": "Simulador de calificación de la USAT",
   "icons": [
     {
       "src": "assets/img/usat_logo_red.jpg",
