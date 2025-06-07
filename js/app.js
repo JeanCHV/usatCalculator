@@ -2,8 +2,8 @@ var nombreCurso = null;
 var Semestre = null;
 var data1 = null;
 var data2 = null;
-//var url = 'https://usatcommuniy.pythonanywhere.com/';
-var urlApi = 'http://127.0.0.1:5000/';
+var url = 'https://usatcommuniy.pythonanywhere.com/';
+//var urlApi = 'http://127.0.0.1:5000/';
 
 
 const analizarPDF = async () => {
