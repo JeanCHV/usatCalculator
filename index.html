@@ -24,7 +24,51 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
-                navigator.serviceWorker.register('service-worker.js');
+                navigator.serviceWorker.register('service-worker.js').then(function (registration) {
+                    console.log('ServiceWorker registration successful');
+
+                    // Verificar actualizaciones cada vez que la página gane foco
+                    window.addEventListener('focus', () => {
+                        registration.update();
+                    });
+
+                    // Escuchar cambios en el service worker
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Hay una nueva versión disponible
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                }).catch(function (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        function showUpdateNotification() {
+            Swal.fire({
+                title: '¡Nueva versión disponible!',
+                text: 'Hay una actualización lista para instalar.',
+                icon: 'info',
+                color: getThemeColor(),
+                background: getThemeBackground(),
+                showCancelButton: true,
+                confirmButtonText: 'Actualizar ahora',
+                cancelButtonText: 'Más tarde',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envía un mensaje al service worker para saltar la espera
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
+                    }
+                    // Recarga la página para cargar la nueva versión
+                    window.location.reload();
+                }
             });
         }
     </script>
@@ -42,9 +86,10 @@
         <p class="text-center mb-4" style="font-size: 1.1em; color: #555;">
             Calcula tus notas y descubre qué calificación necesitas para aprobar tu curso.
             <br>
-            <span style="font-size: 0.9em; color: #777;">Sube tu sílabo en formato PDF y obtén resultados precisos.</span>
+            <span style="font-size: 0.9em; color: #777;">Sube tu sílabo en formato PDF y obtén resultados
+                precisos.</span>
         </p>
-        
+
 
         <div class="card p-4 shadow-lg bg-light text-dark" style="border: none; position: relative; overflow: visible;">
             <div class="d-flex flex-column align-items-center justify-content-center" style="gap: 1.2rem;">

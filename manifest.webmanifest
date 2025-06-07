@@ -1,22 +1,25 @@
 {
   "name": "USAT Calculator",
   "short_name": "USATCalc",
-  "start_url": ".",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#FE0000",
-  "always_update": true,
   "theme_color": "#FE0000",
   "description": "Simulador de calificación de la USAT",
   "icons": [
     {
       "src": "assets/img/usat_logo_red.jpg",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     },
     {
       "src": "assets/img/usat_logo_red.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "/",
+  "orientation": "portrait-primary"
 }
