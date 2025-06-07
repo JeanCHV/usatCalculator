@@ -294,3 +294,21 @@ function getAsignaturaSistemaCalificacion(id_asignatura) {
     });
 }
 
+
+// ¡ADVERTENCIA! Esto expone tus credenciales
+// Solo para desarrollo/testing
+
+function insertRowFromFrontend() {
+  const { private_key, client_email } = '/json/usatcalculator-461921-d75b95f6a886.json';
+  
+  gapi.load('client:auth2', () => {
+    gapi.client.init({
+      apiKey: 'd75b95f6a8865f09028c10d51c0b10215fd9f97c',
+      clientId: client_email,
+      discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+      scope: 'https://www.googleapis.com/auth/spreadsheets'
+    }).then(() => {
+      // Lógica para insertar fila
+    });
+  });
+}

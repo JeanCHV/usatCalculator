@@ -2,6 +2,9 @@ var nombreCurso = null;
 var Semestre = null;
 var data1 = null;
 var data2 = null;
+//var url = 'https://usatcommuniy.pythonanywhere.com/';
+var urlApi = 'http://127.0.0.1:5000/';
+
 
 const analizarPDF = async () => {
     const archivo = $("#pdfFile")[0].files[0];
@@ -23,8 +26,8 @@ const analizarPDF = async () => {
 
     try {
         const lector = new FileReader();
-        
-        lector.onload = async function() {
+
+        lector.onload = async function () {
             try {
                 const typedarray = new Uint8Array(this.result);
                 const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
@@ -105,32 +108,80 @@ const analizarPDF = async () => {
                 const datosCapturados = {
                     facultad: extraerFacultad(textoCompleto),
                     escuela: extraerEscuela(textoCompleto),
+                    codigo: extraerPorPrefijoTextoPlano(textoCompleto, "1.2 Código:"),
                     asignatura: extraerPorPrefijoTextoPlano(textoCompleto, "1.1 Asignatura:"),
                     plan_estudios: extraerPorPrefijoTextoPlano(textoCompleto, "1.3 Ciclo del plan de estudios:"),
                     semestre: extraerPorPrefijoTextoPlano(textoCompleto, "1.9 Semestre académico:")
                 };
                 console.log("Datos extraídos:", JSON.stringify(datosCapturados, null, 2));
+                // Extracción de datos estaticos 
+                $.ajax({
+                    url: urlApi+'/buscarOInsertarAsignatura',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(datosCapturados),
+                    dataType: 'json',
+                    success: async function (response) {
+                        console.log('Datos estáticos obtenidos:', response);
+                        //Si existe, consultar en la BD MySQL
+                        if(response.existed=== true) {
 
-                // Actualizar mensaje de loading
-                Swal.update({
-                    title: 'Enviando datos a API',
-                    allowOutsideClick: false,
-                    html: 'Procesando información con inteligencia artificial...'
+                        }
+                        // Si no existe , procesar normalmente con magic loops 
+                        else {
+                            try {
+                                // 1. Obtener data1 (unidades)
+                                const data1Result = await $.ajax({
+                                    url: 'https://magicloops.dev/api/loop/20f6c53c-4298-46d7-b2da-e28a842da6ea/run',
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({ input: textoExtraidoUnidades }),
+                                    dataType: 'json'
+                                });
+                                data1 = data1Result;
+                                // 2. Obtener data2 (calificación)
+                                const data2Result = await $.ajax({
+                                    url: 'https://magicloops.dev/api/loop/f8974f3c-4bd6-4087-a2d6-6a7ea7979177/run',
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({ input: textoExtraidoCalificacion }),
+                                    dataType: 'json'
+                                });
+                                data2 = data2Result;
+                                // 3. Insertar unidades e indicadores
+                                await $.ajax({
+                                    url: urlApi+'/insertarUnidadesIndicadores/' + response.id_asignatura,
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    dataType: 'json',
+                                    data: JSON.stringify(data1)
+                                });
+                                // 4. Insertar sistema de calificación
+                                await $.ajax({
+                                    url: urlApi+'/insertarSistemaCalificacion/' + response.id_asignatura,
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    dataType: 'json',
+                                    data: JSON.stringify(data2)
+                                });
+                                await loadingSwal.close();
+                                Swal.fire('Éxito', 'El syllabus ha sido procesado correctamente.', 'success');
+                                generarHTML();
+                            } catch (err) {
+                                console.error('Error en el flujo de Magic Loops o inserciones:', err);
+                                Swal.fire('Error', 'Ocurrió un error en el procesamiento. Revisa la consola para más detalles.', 'error');
+                                loadingSwal.close();
+                            }
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Error al obtener datos estáticos:', err);
+                        Swal.fire('Error', 'No se pudieron obtener los datos estáticos. Revisa la consola para más detalles.', 'error');
+                        loadingSwal.close();
+                    }
                 });
 
-                // Realizar ambas peticiones en paralelo
-                const [response1, response2] = await Promise.all([
-                    enviarTexto(textoExtraidoUnidades, 'https://magicloops.dev/api/loop/20f6c53c-4298-46d7-b2da-e28a842da6ea/run'),
-                    enviarTexto(textoExtraidoCalificacion, 'https://magicloops.dev/api/loop/f8974f3c-4bd6-4087-a2d6-6a7ea7979177/run')
-                ]);
 
-                data1 = response1;
-                data2 = response2;
-
-                await loadingSwal.close();
-                Swal.fire('Éxito', 'El syllabus ha sido procesado correctamente.', 'success');
-                
-                generarHTML();
             } catch (error) {
                 console.error('Error al procesar PDF:', error);
                 await loadingSwal.close();
@@ -198,20 +249,20 @@ const generarHTML = () => {
 
         unidad.indicadores_detalles.forEach((ind, idx) => {
             const pesoRelativo = (1 / unidad.indicadores_detalles.length).toFixed(2);
-            
-            let evidenciasHTML = ind.evidencia_detalle.map(ev => 
+
+            let evidenciasHTML = ind.evidencia_detalle.map(ev =>
                 `   
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                          ${ev.evidencia}
                         <span class="badge text rounded-pill" style="background-color: red; color: white;">
                             <input style="background-color: red; border: none; color: white !important; text-align: center;" 
-                                type="number" class="nota" data-unit="${unidadNum}" data-indicador="${ind.codigo}" data-peso="${ev.peso_evidencia == 'Prom.Simple' ? 100 :ev.peso_evidencia}" 
+                                type="number" class="nota" data-unit="${unidadNum}" data-indicador="${ind.codigo}" data-peso="${ev.peso_evidencia == 'Prom.Simple' ? 100 : ev.peso_evidencia}" 
                                  min="0" max="20" placeholder="0.00" step="0.01"  />
                         </span>                         
                     </li>
                 `
             ).join('');
-            
+
             subItemsHTML += `
                 <li class="list-group-item">
                     <i class="bi bi-chevron-down"></i> ${ind.descripcion}
@@ -251,7 +302,7 @@ const generarHTML = () => {
     `);
 
     // Botón compartir PNG
-    $("#share-png").on("click", async function() {
+    $("#share-png").on("click", async function () {
         Swal.fire({
             title: 'Generando imagen...',
             html: '<div class="spinner-border text-success" role="status"></div><br><small>Preparando la imagen para compartir o descargar...</small>',
@@ -265,8 +316,8 @@ const generarHTML = () => {
             },
             didOpen: () => { Swal.showLoading(); }
         });
-        html2canvas(document.querySelector("#body-content"), {backgroundColor: null}).then(async function(canvas) {
-            canvas.toBlob(async function(blob) {
+        html2canvas(document.querySelector("#body-content"), { backgroundColor: null }).then(async function (canvas) {
+            canvas.toBlob(async function (blob) {
                 await Swal.close();
                 // Opción de copiar al portapapeles (Clipboard API)
                 let clipboardSupported = (navigator.clipboard && window.ClipboardItem);
@@ -294,7 +345,7 @@ const generarHTML = () => {
                     didOpen: () => {
                         // Copiar imagen al portapapeles
                         if (showCopy) {
-                            document.getElementById('btn-copy-img').onclick = async function() {
+                            document.getElementById('btn-copy-img').onclick = async function () {
                                 try {
                                     await navigator.clipboard.write([
                                         new window.ClipboardItem({ [blob.type]: blob })
@@ -319,7 +370,7 @@ const generarHTML = () => {
                         }
                         // Compartir imagen
                         if (showShare) {
-                            document.getElementById('btn-share-img').onclick = async function() {
+                            document.getElementById('btn-share-img').onclick = async function () {
                                 try {
                                     await navigator.share({
                                         files: [new File([blob], 'calculadora_usat.png', { type: blob.type })],
@@ -345,12 +396,14 @@ const generarHTML = () => {
                             };
                         }
                         // Descargar imagen
-                        document.getElementById('btn-download-img').onclick = function() {
-                            var link = document.createElement('a');
-                            link.download = 'calculadora_usat.png';
-                            link.href = canvas.toDataURL();
-                            link.click();
-                        };
+                        $("#btn-download-img").off("click").on("click", function () {
+                            var $link = $("<a>")
+                                .attr("download", "calculadora_usat.png")
+                                .attr("href", canvas.toDataURL());
+                            $("body").append($link); // Añadir temporalmente al DOM
+                            $link[0].click();
+                            $link.remove(); // Eliminar después de hacer click
+                        });
                     }
                 });
             }, 'image/png');
@@ -361,7 +414,7 @@ const generarHTML = () => {
     if ($("#btn-minimas-necesarias").length === 0) {
         $("#body-content").prepend('<button id="btn-minimas-necesarias" class="btn btn-warning mb-3"><i class="bi bi-calculator"></i> ¿Qué nota necesito para aprobar?</button>');
     }
-    $("#btn-minimas-necesarias").off("click").on("click", function() {
+    $("#btn-minimas-necesarias").off("click").on("click", function () {
         calcularNotasMinimasNecesarias();
     });
 
@@ -436,7 +489,7 @@ const generarHTML = () => {
         'border': 'none'
     });
     // Asignar eventos con jQuery a los inputs de nota
-    $(".nota").on("input", function(e) {
+    $(".nota").on("input", function (e) {
         let val = $(this).val();
         let num = val === '' ? '' : parseFloat(val);
         if (!isNaN(num)) {
@@ -490,7 +543,7 @@ function actualizarPromedioUnidad(unidadIndex) {
 
     unidad.indicadores_detalles.forEach(indicador => {
         // Peso del indicador en decimal
-        var  pesoUnidad = indicador.peso== 'Prom.Simple' ? 100 : parseFloat(indicador.peso);
+        var pesoUnidad = indicador.peso == 'Prom.Simple' ? 100 : parseFloat(indicador.peso);
         const pesoIndicador = parseFloat(pesoUnidad) / 100;
 
         // Inputs de evidencias que pertenecen a este indicador
@@ -633,10 +686,10 @@ function calcularNotasMinimasNecesarias() {
                 let valor = input ? parseFloat($(input).val()) : null;
                 if (valor !== null && !isNaN(valor)) {
                     sumaNotas += valor;
-                    detallesInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor, pendiente: false});
+                    detallesInputs.push({ input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor, pendiente: false });
                 } else {
-                    faltanInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia});
-                    detallesInputs.push({input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor: null, pendiente: true});
+                    faltanInputs.push({ input, idx, indicador: indicador.codigo, evidencia: ev.evidencia });
+                    detallesInputs.push({ input, idx, indicador: indicador.codigo, evidencia: ev.evidencia, valor: null, pendiente: true });
                 }
                 totalInputs++;
             });
@@ -670,7 +723,7 @@ function calcularNotasMinimasNecesarias() {
             promedioFinalActual += promedioUnidad * pesoUnidad;
         } else {
             totalFaltantes += u.faltanInputs.length;
-            faltantesGlobal.push({unidadIndex: idx, pesoUnidad, faltanInputs: u.faltanInputs, totalInputs: u.totalInputs, sumaNotas: u.sumaNotas, cantidadLlenos});
+            faltantesGlobal.push({ unidadIndex: idx, pesoUnidad, faltanInputs: u.faltanInputs, totalInputs: u.totalInputs, sumaNotas: u.sumaNotas, cantidadLlenos });
         }
     });
     // c) Calcular la nota mínima global que debe ir en cada campo pendiente para llegar a 13.5 en el promedio final
@@ -731,7 +784,7 @@ function calcularNotasMinimasNecesarias() {
         },
         didOpen: () => {
             // Llenar automáticamente los campos pendientes
-            $("#btn-autollenar-minimas").on("click", function() {
+            $("#btn-autollenar-minimas").on("click", function () {
                 if (notaMinimaGlobal !== null && puedeAprobar) {
                     unidadesPendientes.forEach(u => {
                         u.detallesInputs.forEach(d => {
@@ -748,7 +801,7 @@ function calcularNotasMinimasNecesarias() {
 }
 
 // Asignar evento al botón de generar calculadora
-$(document).on('click', '#btn-generar-calc', function(e) {
+$(document).on('click', '#btn-generar-calc', function (e) {
     e.preventDefault();
     analizarPDF();
 });
