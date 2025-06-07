@@ -36,8 +36,15 @@
     <div class="container py-5">
         <h2 class="text-center mb-4">
             <img src="assets/img/usat_logo.png" id="logo_usat" alt="logo" style="width: 90px;">
-            GENERADOR DE CALCULADORA DE PROMEDIO
+            Simulador de Notas USAT
+            <span id="versionApp" class="badge bg-success" style="font-size: 0.9em;"></span>
         </h2>
+        <p class="text-center mb-4" style="font-size: 1.1em; color: #555;">
+            Calcula tus notas y descubre qué calificación necesitas para aprobar tu curso.
+            <br>
+            <span style="font-size: 0.9em; color: #777;">Sube tu sílabo en formato PDF y obtén resultados precisos.</span>
+        </p>
+        
 
         <div class="card p-4 shadow-lg bg-light text-dark" style="border: none; position: relative; overflow: visible;">
             <div class="d-flex flex-column align-items-center justify-content-center" style="gap: 1.2rem;">
@@ -189,7 +196,7 @@
             }
         }
     </style>
-    
+
     <script>
         function getThemeColor() {
             const theme = document.body.getAttribute('data-theme') || 'light';
@@ -203,7 +210,7 @@
         var swalColor = getThemeColor();
         var swalBg = getThemeBackground();
     </script>
-        <script>
+    <script>
         // Theme toggle logic
         function setTheme(theme) {
             if (theme === 'auto') {
@@ -350,24 +357,7 @@
         });
         // Mostrar el ícono correcto al cargar la página
         $(function () { setUploadStatus('idle'); });
-        // Mostrar modal de ayuda al usuario para subir su sílabo
-        Swal.fire({
-            title: '¡Ayúdanos a mejorar!',
-            html: '<div style="display:flex;align-items:center;gap:10px;justify-content:center;">' +
-                '<img src="https://justificaturespuesta.com/wp-content/uploads/2014/03/Google-Drive.png" alt="Google Drive" style="width:36px;height:36px;vertical-align:middle;">' +
-                '<span>Sube tus sílabos a este drive:</span>' +
-                '</div>' +
-                '<a href="https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing" target="_blank" style="color:#d9534f;font-weight:bold;display:block;margin-top:10px;">Ir a Google Drive</a>',
-            icon: 'info',
-            color: getThemeColor(),
-            background: getThemeBackground(),
-            confirmButtonText: 'Cerrar',
-            allowOutsideClick: false,
-            showCloseButton: true,
-            timer: undefined,
-            timerProgressBar: false,
-            willClose: () => false
-        });
+
         $(document).on('click', '#drive-fab', function (e) {
             e.preventDefault();
             Swal.fire({
@@ -391,47 +381,131 @@
             });
         });
         $(document).ready(function () {
-            if (!localStorage.getItem('changelog_v1.1_shown')) {
-                Swal.fire({
-                    title: 'Novedades de la versión 1.1',
-                    html: `<ul style="text-align:left;">
-                                <li>Las notas ahora se ajustan automáticamente a 0 si son menores a 0 y a 20 si son mayores a 20.</li>
-                                <li>Mejoras visuales y de experiencia de usuario.</li>
-                                <li>Corrección de validaciones en los campos de nota.</li>
-                            </ul>`,
-                    icon: 'info',
-                    color: getThemeColor(),
-                    background: getThemeBackground(),
-                    confirmButtonText: '¡Entendido!',
-                    customClass: {
-                        popup: 'swal2-popup-custom',
-                        title: 'swal2-title-custom',
-                        htmlContainer: 'swal2-html-custom'
+            // Función para cargar y mostrar el changelog de la última versión
+            async function showChangelog() {
+                try {
+                    // Cargar el archivo markdown
+                    const response = await fetch('changelog.md');
+                    if (!response.ok) throw new Error('Error al cargar el changelog');
+                    const markdownContent = await response.text();
+
+                    // Extraer las versiones del changelog
+                    const versionDetails = extractVersions(markdownContent);
+
+                    // Obtener la última versión (la más reciente por fecha)
+                    const latestVersion = getLatestVersion(versionDetails);
+
+                    // Actualizar el span con la última versión
+                    $('#versionApp').text(latestVersion);  // Actualizamos el texto del span con la versión más reciente
+
+                    // Verificar si ya se mostró esta versión anteriormente
+                    const lastShownVersion = localStorage.getItem('lastShownVersion');
+
+                    // Si es una nueva versión, mostrarla
+                    if (latestVersion !== lastShownVersion) {
+                        // Extraer la sección específica de la última versión
+                        const versionSection = extractVersionSection(markdownContent, latestVersion);
+
+                        if (versionSection) {
+                            Swal.fire({
+                                title: `Novedades de la versión ${latestVersion}`,
+                                html: versionSection,
+                                icon: 'info',
+                                color: getThemeColor(),
+                                background: getThemeBackground(),
+                                confirmButtonText: '¡Entendido!',
+                                customClass: {
+                                    popup: 'swal2-popup-custom',
+                                    title: 'swal2-title-custom',
+                                    htmlContainer: 'swal2-html-custom'
+                                }
+                            });
+
+                            // Guardar la versión mostrada en localStorage
+                            localStorage.setItem('lastShownVersion', latestVersion);
+                        }
                     }
-                });
-                localStorage.setItem('changelog_v1.1_shown', 'true');
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Fallback al contenido hardcodeado si hay error
+                    showHardcodedChangelog();
+                }
             }
-            else if (!localStorage.getItem('changelog_v1.2_shown')) {
-                Swal.fire({
-                    title: 'Novedades de la versión 1.2',
-                    html: `<ul style="text-align:left;">
-                                <li>Se agregó la opción de ver el historial de notas.</li>
-                                <li>Mejoras en la velocidad de carga de la calculadora.</li>
-                                <li>Corrección de errores menores.</li>
-                            </ul>`,
-                    icon: 'info',
-                    color: getThemeColor(),
-                    background: getThemeBackground(),
-                    confirmButtonText: '¡Entendido!',
-                    customClass: {
-                        popup: 'swal2-popup-custom',
-                        title: 'swal2-title-custom',
-                        htmlContainer: 'swal2-html-custom'
+
+            // Función para extraer las versiones y fechas del changelog
+            function extractVersions(content) {
+                const versionRegex = /## (\S+)\s-\s(\d{4}-\d{2}-\d{2})/g;
+                const versions = [];
+                let match;
+                while ((match = versionRegex.exec(content)) !== null) {
+                    versions.push({ version: match[1], date: match[2] });
+                }
+                return versions;
+            }
+
+            // Función para obtener la última versión (más reciente)
+            function getLatestVersion(versionDetails) {
+                return versionDetails.sort((a, b) => new Date(b.date) - new Date(a.date))[0].version;
+            }
+
+            // Función para extraer la sección de una versión específica
+            function extractVersionSection(content, version) {
+                const versionHeader = `## ${version}`;
+                const sections = content.split('## ');
+
+                for (let section of sections) {
+                    if (section.startsWith(version)) {
+                        // Convertir markdown a HTML simple (puedes usar marked.js para algo más completo)
+                        const htmlContent = section.replace(versionHeader, '')
+                            .replace(/^- (.*$)/gm, '<li>$1</li>')
+                            .trim();
+                        return `<ul style="text-align:left;">${htmlContent}</ul>`;
                     }
-                });
-                localStorage.setItem('changelog_v1.2_shown', 'true');
+                }
+                return null;
             }
+
+            // Fallback al contenido hardcodeado
+            function showHardcodedChangelog() {
+                const changelogs = {
+                    'v1.3': `<ul style="text-align:left;">
+                <li>Los mensajes emergentes ahora respetan el modo claro/oscuro que elijas o el de tu sistema.</li>
+                <li>Los mensajes ahora son más detallados.</li>
+                <li>Ahora contamos con una Base de Datos para los Silabos.</li>
+                <li>Los silabos cargados previamente cargarán más rápido.</li>
+                <li>Si no ves los cambios, prueba limpiando la caché del navegador.</li>
+            </ul>`,
+                    'v1.4': `<ul style="text-align:left;">
+                <li>Se añadió la opción de exportar las notas a PDF.</li>
+                <li>Mejoras en la interfaz de usuario para dispositivos móviles.</li>
+                <li>Corrección de errores en la carga de archivos PDF.</li>
+            </ul>`
+                };
+
+                if (changelogs['v1.4']) {
+                    Swal.fire({
+                        title: `Novedades de la versión v1.4`,
+                        html: changelogs['v1.4'],
+                        icon: 'info',
+                        color: getThemeColor(),
+                        background: getThemeBackground(),
+                        allowOutsideClick: false,
+                        confirmButtonText: '¡Entendido!',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            htmlContainer: 'swal2-html-custom'
+                        }
+                    });
+                }
+            }
+
+            // Llamar a la función para mostrar siempre la última versión si es nueva
+            showChangelog();
         });
+
+
+
     </script>
 
 </body>
