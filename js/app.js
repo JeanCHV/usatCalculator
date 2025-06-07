@@ -14,6 +14,7 @@ const analizarPDF = async () => {
     }
 
     // Mostrar loading
+
     const loadingSwal = Swal.fire({
         title: 'Procesando PDF',
         html: 'Extrayendo información del syllabus...',
@@ -21,7 +22,9 @@ const analizarPDF = async () => {
         showConfirmButton: false,  // Oculta el botón OK
         didOpen: () => {
             Swal.showLoading();  // Muestra el spinner de carga
-        }
+        },
+        color: swalColor,
+        background: swalBg
     });
 
     try {
@@ -124,12 +127,49 @@ const analizarPDF = async () => {
                     success: async function (response) {
                         console.log('Datos estáticos obtenidos:', response);
                         //Si existe, consultar en la BD MySQL
-                        if(response.existed=== true) {
-
+                        if(response.existed === true) {
+                            try {
+                                // Consultar unidades e indicadores
+                                const data1Result = await $.ajax({
+                                    url: urlApi + '/getUnidadesConIndicadores/' + response.id_asignatura,
+                                    method: 'GET',
+                                    contentType: 'application/json',
+                                    dataType: 'json'
+                                });
+                                data1 = data1Result;
+                                // Consultar sistema de calificación
+                                const data2Result = await $.ajax({
+                                    url: urlApi + '/getSistemaCalificacion/' + response.id_asignatura,
+                                    method: 'GET',
+                                    contentType: 'application/json',
+                                    dataType: 'json'
+                                });
+                                data2 = data2Result;
+                                await loadingSwal.close();
+                                Swal.fire('Éxito', 'El syllabus ha sido procesado correctamente.', 'success');
+                                generarHTML();
+                            } catch (err) {
+                                console.error('Error al consultar unidades, indicadores o sistema de calificación:', err);
+                                Swal.fire('Error', 'No se pudieron obtener las unidades, indicadores o sistema de calificación. Revisa la consola para más detalles.', 'error');
+                                loadingSwal.close();
+                            }
                         }
                         // Si no existe , procesar normalmente con magic loops 
                         else {
                             try {
+                                // Mostrar mensaje amigable pero mantener el loadingSwal abierto
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: '¡Vaya! Este syllabus es nuevo',
+                                    html: 'No teníamos este curso registrado, pero lo estamos añadiendo a la base de datos.<br><br><b>¡Gracias por tu contribución!</b>',
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    },
+                                    color: getThemeColor(),
+                                    background: getThemeBackground()
+                                });
                                 // 1. Obtener data1 (unidades)
                                 const data1Result = await $.ajax({
                                     url: 'https://magicloops.dev/api/loop/20f6c53c-4298-46d7-b2da-e28a842da6ea/run',
@@ -165,11 +205,23 @@ const analizarPDF = async () => {
                                     data: JSON.stringify(data2)
                                 });
                                 await loadingSwal.close();
-                                Swal.fire('Éxito', 'El syllabus ha sido procesado correctamente.', 'success');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Listo!',
+                                    text: 'El syllabus ha sido procesado y añadido correctamente. ¡Gracias por tu aporte a la comunidad!',
+                                    color: getThemeColor(),
+                                    background: getThemeBackground()
+                                });
                                 generarHTML();
                             } catch (err) {
                                 console.error('Error en el flujo de Magic Loops o inserciones:', err);
-                                Swal.fire('Error', 'Ocurrió un error en el procesamiento. Revisa la consola para más detalles.', 'error');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error en el procesamiento. Revisa la consola para más detalles.',
+                                    color: getThemeColor(),
+                                    background: getThemeBackground()
+                                });
                                 loadingSwal.close();
                             }
                         }
@@ -308,7 +360,8 @@ const generarHTML = () => {
             html: '<div class="spinner-border text-success" role="status"></div><br><small>Preparando la imagen para compartir o descargar...</small>',
             allowOutsideClick: false,
             showConfirmButton: false,
-            background: '#f8f9fa',
+            background: getThemeBackground(),
+            color: getThemeColor(),
             customClass: {
                 title: 'swal2-title-custom',
                 popup: 'swal2-popup-custom',
@@ -336,7 +389,8 @@ const generarHTML = () => {
                     title: 'Imagen generada',
                     html: '<b>¿Qué deseas hacer con la imagen?</b><br>' + buttonsHtml + '<br><small>Si quieres compartirla, búscala en tu carpeta de descargas o usa las opciones disponibles.</small>',
                     showConfirmButton: false,
-                    background: '#f8f9fa',
+                    background: getThemeBackground(),
+                    color: getThemeColor(),
                     customClass: {
                         title: 'swal2-title-custom',
                         popup: 'swal2-popup-custom',
@@ -355,7 +409,9 @@ const generarHTML = () => {
                                         title: '¡Copiado!',
                                         text: 'La imagen se copió al portapapeles. Puedes pegarla en cualquier chat o documento.',
                                         timer: 1800,
-                                        showConfirmButton: false
+                                        showConfirmButton: false,
+                                        background: getThemeBackground(),
+                                        color: getThemeColor()
                                     });
                                 } catch (err) {
                                     Swal.fire({
@@ -363,7 +419,9 @@ const generarHTML = () => {
                                         title: 'Error',
                                         text: 'No se pudo copiar la imagen. Prueba en un navegador compatible.',
                                         timer: 2000,
-                                        showConfirmButton: false
+                                        showConfirmButton: false,
+                                        background: getThemeBackground(),
+                                        color: getThemeColor()
                                     });
                                 }
                             };
@@ -382,7 +440,9 @@ const generarHTML = () => {
                                         title: '¡Compartido!',
                                         text: 'La imagen fue compartida exitosamente.',
                                         timer: 2000,
-                                        showConfirmButton: false
+                                        showConfirmButton: false,
+                                        background: getThemeBackground(),
+                                        color: getThemeColor()
                                     });
                                 } catch (err) {
                                     Swal.fire({
@@ -390,7 +450,9 @@ const generarHTML = () => {
                                         title: 'Compartir cancelado',
                                         text: 'No se completó el proceso de compartir.',
                                         timer: 2000,
-                                        showConfirmButton: false
+                                        showConfirmButton: false,
+                                        background: getThemeBackground(),
+                                        color: getThemeColor()
                                     });
                                 }
                             };
@@ -776,7 +838,8 @@ function calcularNotasMinimasNecesarias() {
         title: '<i class="bi bi-clipboard2-check"></i> Notas mínimas necesarias',
         html: mensaje,
         confirmButtonText: 'Cerrar',
-        background: '#f8f9fa',
+        background: getThemeBackground(),
+        color: getThemeColor(),
         customClass: {
             title: 'swal2-title-custom',
             popup: 'swal2-popup-custom',
