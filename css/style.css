@@ -276,7 +276,7 @@ body[data-theme="dark"] input.nota::placeholder {
     text-align: center;
     word-break: break-all;
 }
-@media (max-width: 576px) {
+@media (max-width: 375px) {
     .upload-area {
         min-height: 80px;
         border-radius: 10px;
@@ -341,7 +341,7 @@ body[data-theme="dark"] input.nota::placeholder {
     text-align: center;
     word-break: break-all;
 }
-@media (max-width: 576px) {
+@media (max-width: 375px) {
     .drop-zone {
         min-height: 70px;
         border-radius: 8px;
