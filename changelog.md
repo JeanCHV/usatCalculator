@@ -22,3 +22,16 @@
 - Ahora contamos con una Base de Datos para los Silabos
 - Los silabos cargados previamente cargarán más rápido
 - Si no ves los cambios, prueba limpiando la caché del navegador.
+
+## v1.3.1 - 2025-06-10
+- Se corrigió el contenido adaptativo en pantallas móviles menores a 536 píxeles.
+- El área de subida de PDF ahora se oculta automáticamente tras procesar el archivo.
+- Mejoras visuales en el área de subida de archivos.
+- Botón de Google Drive deshabilitado temporalmente.
+- Se agregaron y rediseñaron los botones flotantes de ayuda, compartir y feedback para una mejor experiencia de usuario.
+- El botón de feedback ahora dirige directamente a WhatsApp para contacto rápido.
+- Mejoras en la accesibilidad y navegación con el botón "Volver arriba".
+- Correcciones menores de estilo y consistencia visual en los botones flotantes.
+- Optimización de scripts para una carga y respuesta más rápida en dispositivos móviles.
+
+

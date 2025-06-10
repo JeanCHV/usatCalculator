@@ -21,6 +21,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="css/style.css" rel="stylesheet">
     <link rel="manifest" href="manifest.webmanifest">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
+    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
@@ -84,55 +88,55 @@
 
 <body>
 
-    <div class="container py-5">
+    <div class="container-fluid py-4 px-2 px-sm-4">
         <h2 class="text-center mb-4">
-            <img src="assets/img/usat_logo.png" id="logo_usat" alt="logo" style="width: 90px;">
+            <img src="assets/img/usat_logo.png" id="logo_usat" alt="logo" style="width: 70px; max-width: 18vw;">
             Simulador de Notas USAT
             <span id="versionApp" class="badge bg-success" style="font-size: 0.9em;"></span>
         </h2>
-        <p class="text-center mb-4" style="font-size: 1.1em; color: #555;">
-            Calcula tus notas y descubre qué calificación necesitas para aprobar tu curso.
-            <br>
-            <span style="font-size: 0.9em; color: #777;">Sube tu sílabo en formato PDF y obtén resultados
-                precisos.</span>
+
+
+        <p id="btn-area" class="text-center mb-4" style="display: none;">
+            <button id="btn-collapse" style="font-size: 1.1em; font-weight: bold; transition: transform 0.3s;"
+                class="btn btn-warning w-100 w-sm-auto" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseExample" aria-expanded="true" aria-controls="collapseExample">
+                <i class="bi bi-info-circle"></i>
+                Subir otro Sílabo
+            </button>
         </p>
 
 
-        <div class="card p-4 shadow-lg bg-light text-dark" style="border: none; position: relative; overflow: visible;">
-            <div class="d-flex flex-column align-items-center justify-content-center" style="gap: 1.2rem;">
-                <div style="position: relative;">
-                    <div id="upload-anim-icon"
-                        style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; transition: color 0.3s; z-index:3;">
-                        <i class="bi bi-cloud-arrow-up-fill"
-                            style="font-size: 3.5rem; color: #d9534f; opacity: 0.7; transition: color 0.3s;"></i>
-                    </div>
-                    <input type="file" class="form-control mb-3" id="pdfFile" accept="application/pdf"
-                        style="opacity:0; width: 120px; height: 120px; cursor:pointer; position: absolute; left:0; top:0; z-index:4;" />
-                    <div id="custom-upload-area"
-                        style="width: 120px; height: 120px; border: 2.5px dashed #d9534f; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; z-index:2; position:relative;">
-                    </div>
-                    <div id="upload-loading"
-                        style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5;">
-                        <div class="spinner-border text-warning" style="width:2.5rem; height:2.5rem;"></div>
+        <div class="card p-3 p-sm-4 shadow-lg bg-light text-dark collapse show w-100 mx-auto" id="collapseExample"
+            style="border: none; position: relative; overflow: visible; max-width: 600px;">
+            <p id="description" class="text-center mb-4" style="font-size: 1.1em; color: #555;">
+                Calcula tus notas y descubre qué calificación necesitas para aprobar tu curso.
+                <br>
+                <span style="font-size: 0.9em; color: #777;">Sube tu sílabo en formato PDF y obtén resultados
+                    precisos.</span>
+            </p>
+            <div class="d-flex flex-column align-items-center justify-content-center w-100" style="gap: 1.2rem;">
+                <div id="drop-zone" class="drop-zone w-100 mb-2">
+                    <input type="file" id="pdfFile" accept="application/pdf"
+                        class="drop-zone__input form-control w-100" />
+                    <div class="drop-zone__prompt">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                        <span>Arrastra y suelta tu sílabo PDF aquí o haz clic para seleccionar</span>
                     </div>
                 </div>
-                <div id="file-name-area"
-                    style="min-height: 1.5em; font-size: 1em; color: #333; font-weight: 500; text-align: center;"></div>
-                <label for="pdfFile" class="form-label text-center"
-                    style="font-size: 1.1em; color: #900; font-weight: bold; cursor:pointer;">Sube tu sílabo del
-                    curso<br><span style="font-size:0.95em; color:#555; font-weight:normal;">(PDF, arrastra o haz clic
-                        en el círculo)</span></label>
+                <div id="file-name-area" class="file-name-area mt-2"></div>
                 <button id="btn-generar-calc" class="btn btn-danger w-100"
                     style="font-weight:bold; font-size:1.1em; transition: box-shadow 0.3s, transform 0.3s;">
                     <i class="bi bi-file-earmark-text"></i> Generar Calculadora
                 </button>
-                <button id="btn-minimas-necesarias" class="btn btn-warning mb-3"><i class="bi bi-calculator"></i> ¿Qué
-                    nota necesito para aprobar?</button>
             </div>
         </div>
+        <button style="display: none;" id="btn-minimas-necesarias" class="btn btn-warning mb-3 w-100"><i
+                class="material-icons icon">auto_awesome</i>
+            Generar Minimas Notas
+        </button>
     </div>
 
-    <div class="container" id="body-content">
+    <div class="container-fluid px-2" id="body-content">
 
     </div>
 
@@ -145,106 +149,201 @@
         </select>
     </div>
 
-    <a href="https://wa.me/51960920160" target="_blank" id="whatsapp-fab" title="Contáctanos por WhatsApp">
-        <i class="bi bi-whatsapp"></i>
+    <!-- Botones flotantes -->
+    <a href="#" id="help-fab" title="Ayuda / Soporte">
+        <i class="fa-solid fa-question"></i>
     </a>
-    <a href="https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing" target="_blank"
-        id="drive-fab" title="Sube tu sílabo a Google Drive"
-        class="btn btn-warning d-flex align-items-center justify-content-center">
-        <i class="fab fa-google-drive" style="font-size: 2.3rem;"></i>
-        <span style="font-size:1.1rem;font-weight:bold;"></span>
+    <a href="https://wa.me/51960920160" target="_blank" id="feedback-fab" title="Enviar sugerencia o reporte por WhatsApp">
+        <i class="fa-solid fa-comments"></i>
     </a>
+    <a href="#" id="share-fab" title="Compartir esta app">
+        <i class="bi bi-share-fill"></i>
+    </a>
+    <a href="#" id="top-fab" title="Volver arriba">
+        <i class="bi bi-arrow-up"></i>
+    </a>
+
     <style>
-        #whatsapp-fab {
+        /* Botones flotantes reordenados y sin whatsapp-fab */
+        #help-fab, #feedback-fab, #share-fab, #top-fab {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
+            right: 18px;
             z-index: 99999;
-            width: 64px;
-            height: 64px;
-            background: #25d366;
-            color: #fff;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-            font-size: 2.3rem;
-            transition: box-shadow 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            font-size: 1.4rem;
+            transition: box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s;
             text-decoration: none;
             border: none;
         }
-
-        #whatsapp-fab:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-            transform: scale(1.08);
+        #help-fab {
+            background: #f0ad4e;
             color: #fff;
-            background: #1ebe57;
+            bottom: 146px;
         }
-
-        #drive-fab {
-            position: fixed;
-            bottom: 110px;
-            right: 32px;
-            z-index: 99999;
-            width: 64px;
-            height: 64px;
-            background: #ffc107;
+        #help-fab:hover {
+            background: #ec971f;
             color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-
-            transition: box-shadow 0.2s, transform 0.2s;
-            text-decoration: none;
-            border: none;
         }
-
-        #drive-fab:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-            transform: scale(1.08);
+        #feedback-fab {
+            background: #5bc0de;
             color: #fff;
-            background: #e0a800;
+            bottom: 98px;
+        }
+        #feedback-fab:hover {
+            background: #31b0d5;
+            color: #fff;
+        }
+        #share-fab {
+            background: #007bff;
+            color: #fff;
+            bottom: 50px;
+        }
+        #share-fab:hover {
+            background: #0056b3;
+            color: #fff;
+        }
+        #top-fab {
+            background: #28a745;
+            color: #fff;
+            bottom: 10px;
+        }
+        #top-fab:hover {
+            background: #218838;
+            color: #fff;
+        }
+        @media (max-width: 576px) {
+            #help-fab, #feedback-fab, #share-fab, #top-fab {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 1.1rem !important;
+            }
+            #help-fab { bottom: 110px; }
+            #feedback-fab { bottom: 74px; }
+            #share-fab { bottom: 38px; }
+            #top-fab { bottom: 8px; }
         }
 
-        .dragover {
-            border-color: #f7b731 !important;
-            box-shadow: 0 0 16px 2px rgba(247, 183, 49, 0.3) !important;
-        }
+        /* Responsive: reducir fuentes y paddings en móviles */
+        @media (max-width: 576px) {
 
-        .success {
-            border-color: #28a745 !important;
-            background-color: rgba(40, 167, 69, 0.1) !important;
-        }
-
-        .error {
-            border-color: #dc3545 !important;
-            background-color: rgba(220, 53, 69, 0.1) !important;
-        }
-
-        .drag-anim {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: wave-animation 1.2s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes wave-animation {
-            0% {
-                transform: scale(0.9);
-                opacity: 1;
+            html,
+            body {
+                font-size: 10px !important;
             }
 
-            100% {
-                transform: scale(1.1);
-                opacity: 0;
+            h2,
+            .h2 {
+                font-size: 1.1rem !important;
+            }
+
+            #logo_usat {
+                width: 44px !important;
+                max-width: 14vw !important;
+            }
+
+            .card {
+                padding: 1rem !important;
+            }
+
+            .form-label,
+            label,
+            .btn,
+            .badge,
+            .list-group-item,
+            #file-name-area,
+            #description {
+                font-size: 0.95em !important;
+            }
+
+            .btn {
+                padding: 0.4em 0.7em !important;
+            }
+
+            .bi,
+            .material-icons,
+            .fa-google-drive {
+                font-size: 1.2rem !important;
+            }
+        }
+
+        /* Ajuste de alineación para el área de carga y su ícono */
+        #custom-upload-area {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            width: 120px;
+            height: 120px;
+            min-width: 70px;
+            min-height: 70px;
+            border: 2.5px dashed #d9534f;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            z-index: 2;
+        }
+
+        #upload-anim-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        #upload-anim-icon i {
+            font-size: 1.8rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #upload-loading {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        #upload-loading .spinner-border {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        @media (max-width: 576px) {
+
+            #custom-upload-area,
+            #upload-anim-icon,
+            #upload-loading {
+                width: 70px !important;
+                height: 70px !important;
+                min-width: 70px !important;
+                min-height: 70px !important;
+            }
+
+            #upload-anim-icon i,
+            #upload-loading .spinner-border {
+                font-size: 1.2rem !important;
+                width: 1.2rem !important;
+                height: 1.2rem !important;
             }
         }
     </style>
@@ -313,6 +412,8 @@
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="js/app.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/db.js"></script>
@@ -326,112 +427,21 @@
             else iconHtml = '<i class="bi bi-cloud-arrow-up-fill" style="font-size:3.5rem;color:#d9534f;opacity:0.7;"></i>';
             $('#upload-anim-icon').html(iconHtml);
         }
-        // Efecto visual al arrastrar archivo
-        $(document).on('dragover', '#custom-upload-area', function (e) {
-            e.preventDefault();
-            $(this).addClass('dragover');
-            if ($(this).find('.drag-anim').length === 0) {
-                $(this).append('<div class="drag-anim"></div>');
-            }
-            $('#upload-anim-icon i').css('color', '#f7b731');
-        });
-        $(document).on('dragleave drop', '#custom-upload-area', function (e) {
-            e.preventDefault();
-            $(this).removeClass('dragover');
-            setTimeout(function () { $('#custom-upload-area .drag-anim').remove(); }, 300);
-            $(this).removeClass('success error');
-            $(this).css({ 'border-color': '', 'box-shadow': '' });
-            setUploadStatus('idle');
-        });
-        // Detectar cuando el usuario está sosteniendo un archivo sobre la ventana
-        $(window).on('dragenter', function (e) {
-            // Solo si hay archivos
-            if (e.originalEvent && e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types && e.originalEvent.dataTransfer.types.includes('Files')) {
-                $('#custom-upload-area').addClass('dragover');
-                if ($('#custom-upload-area .drag-anim').length === 0) {
-                    $('#custom-upload-area').append('<div class="drag-anim"></div>');
-                }
-            }
-        });
-        $(window).on('dragleave drop', function (e) {
-            $('#custom-upload-area').removeClass('dragover');
-            setTimeout(function () { $('#custom_upload_area .drag-anim').remove(); }, 300);
-        });
-        // Drop directo sobre el área
-        $(document).on('drop', '#custom-upload-area', function (e) {
-            e.preventDefault();
-            const files = e.originalEvent.dataTransfer.files;
-            $(this).removeClass('dragover');
-            setTimeout(function () { $('#custom-upload-area .drag-anim').remove(); }, 300);
-            if (files.length > 0 && files[0].type === 'application/pdf') {
-                $('#pdfFile')[0].files = files;
-                $('#custom-upload-area').addClass('success').removeClass('error');
-                $('#custom-upload-area').html('');
-                $('#upload-loading').show();
-                setTimeout(function () {
-                    $('#upload-loading').hide();
-                    setUploadStatus('success');
-                    $('#file-name-area').html('<span style="color:#28a745;">' + files[0].name + '</span>');
-                    $('#btn-generar-calc').css({ 'box-shadow': '0 0 0 4px #f7b73199', 'transform': 'scale(1.05)' });
-                    setTimeout(function () {
-                        $('#btn-generar-calc').css({ 'box-shadow': '', 'transform': '' });
-                    }, 1200);
-                }, 900);
-            } else {
-                $('#custom-upload-area').addClass('error').removeClass('success');
-                setUploadStatus('error');
-                $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
-            }
-        });
-        // Click en el área personalizada abre el input
-        $(document).on('click', '#custom-upload-area', function () {
-            $('#pdfFile').trigger('click');
-        });
-        // Mostrar nombre del archivo seleccionado y animación
-        $(document).on('change', '#pdfFile', function () {
-            if (this.files && this.files[0] && this.files[0].type === 'application/pdf') {
-                $('#custom-upload-area').html('');
-                $('#upload-loading').show();
-                setTimeout(function () {
-                    $('#upload-loading').hide();
-                    setUploadStatus('success');
-                    $('#file-name-area').html('<span style="color:#28a745;">' + $('#pdfFile')[0].files[0].name + '</span>');
-                    // Enfatizar el botón
-                    $('#btn-generar-calc').css({ 'box-shadow': '0 0 0 4px #f7b73199', 'transform': 'scale(1.05)' });
-                    setTimeout(function () {
-                        $('#btn-generar-calc').css({ 'box-shadow': '', 'transform': '' });
-                    }, 1200);
-                }, 900);
-            } else {
-                setUploadStatus('error');
-                $('#file-name-area').html('<span style="color:#dc3545;">Archivo no válido. Sube un PDF.</span>');
-            }
-        });
-        // Mostrar el ícono correcto al cargar la página
-        $(function () { setUploadStatus('idle'); });
-
-        $(document).on('click', '#drive-fab', function (e) {
-            e.preventDefault();
-            Swal.fire({
-                title: '¿Quieres contribuir con tus sílabos?',
-                html: '<div style="display:flex;align-items:center;gap:10px;justify-content:center;">' +
-                    '<img src="https://justificaturespuesta.com/wp-content/uploads/2014/03/Google-Drive.png" alt="Google Drive" style="width:36px;height:36px;vertical-align:middle;">' +
-                    '<span>Ayúdanos a mejorar la calculadora subiendo tus sílabos de este semestre a nuestro Google Drive. ¡Tu aporte es valioso!</span>' +
-                    '</div>',
-                icon: 'info',
-                color: getThemeColor(),
-                background: getThemeBackground(),
-                showCancelButton: true,
-                confirmButtonText: 'Ir a Drive',
-                cancelButtonText: 'Cerrar',
-                allowOutsideClick: true,
-                showCloseButton: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.open('https://drive.google.com/drive/folders/1Lzg2q3Um052I1FWKWakhmhl6f9iHhE9f?usp=sharing', '_blank');
+        $(function () {
+            const fileInput = document.getElementById('pdfFile');
+            const fileNameArea = document.getElementById('file-name-area');
+            if (!fileInput) return;
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length && fileInput.files[0].type === 'application/pdf') {
+                    fileNameArea.textContent = fileInput.files[0].name;
+                    fileNameArea.style.color = '#28a745';
+                } else {
+                    fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+                    fileNameArea.style.color = '#dc3545';
                 }
             });
         });
+
         $(document).ready(function () {
             // Función para cargar y mostrar el changelog de la última versión
             async function showChangelog() {
@@ -558,6 +568,59 @@
 
 
 
+    </script>
+    <script>
+        // Botón de ayuda
+        $(document).on('click', '#help-fab', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Ayuda / Preguntas Frecuentes',
+                html: `<ul style='text-align:left;'>
+                    <li><b>¿Cómo subo mi sílabo?</b> Haz clic en el área de carga o arrastra tu PDF.</li>
+                    <li><b>¿Qué hago si no reconoce mi archivo?</b> Asegúrate de que sea PDF y que el texto sea legible.</li>
+                    <li><b>¿Cómo exporto mis notas?</b> Usa el botón de exportar PDF tras generar la calculadora.</li>
+                    <li><b>¿Tienes otra duda?</b> Contáctanos por WhatsApp o usa el botón de feedback.</li>
+                </ul>`,
+                icon: 'question',
+                color: getThemeColor(),
+                background: getThemeBackground(),
+                confirmButtonText: 'Cerrar',
+            });
+        });
+        // Botón volver arriba
+        $(document).on('click', '#top-fab', function (e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        // Mostrar/ocultar botón volver arriba según scroll
+        $(window).on('scroll', function () {
+            if ($(window).scrollTop() > 200) {
+                $('#top-fab').fadeIn();
+            } else {
+                $('#top-fab').fadeOut();
+            }
+        });
+        $(function () { $('#top-fab').hide(); });
+        // Botón de compartir
+        $(document).on('click', '#share-fab', function (e) {
+            e.preventDefault();
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Simulador de Notas USAT',
+                    text: '¡Calcula tus notas y descubre qué necesitas para aprobar tu curso en USAT!',
+                    url: window.location.href
+                }).catch(() => { });
+            } else {
+                Swal.fire({
+                    title: 'Compartir',
+                    html: `<input class='form-control' value='${window.location.href}' readonly style='margin-bottom:8px;'>¡Copia el enlace y compártelo!`,
+                    icon: 'info',
+                    color: getThemeColor(),
+                    background: getThemeBackground(),
+                    confirmButtonText: 'Cerrar'
+                });
+            }
+        });
     </script>
 
 </body>

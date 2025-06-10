@@ -2,13 +2,8 @@ const CACHE_NAME = 'usat-calc-v2';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [
   '/',
-  '/index.html',
   'assets/img/usat_logo.png',
   'assets/img/usat_logo_red.jpg',
-  'css/style.css',
-  'js/app.js',
-  'js/utils.js',
-  'js/db.js',
   '/offline.html'
 ];
 

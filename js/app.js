@@ -5,7 +5,6 @@ var data2 = null;
 var urlApi = 'https://usatcommuniy.pythonanywhere.com/';
 //var urlApi = 'http://127.0.0.1:5000/';
 
-
 const analizarPDF = async () => {
     const archivo = $("#pdfFile")[0].files[0];
     if (!archivo) {
@@ -17,7 +16,7 @@ const analizarPDF = async () => {
 
     const loadingSwal = Swal.fire({
         title: 'Procesando PDF',
-        html: 'Extrayendo información del syllabus...',
+        html: 'Extrayendo información del Sílabo...',
         allowOutsideClick: false,
         showConfirmButton: false,  // Oculta el botón OK
         didOpen: () => {
@@ -146,8 +145,20 @@ const analizarPDF = async () => {
                                 });
                                 data2 = data2Result;
                                 await loadingSwal.close();
-                                Swal.fire('Éxito', 'El syllabus ha sido procesado correctamente.', 'success');
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Éxito',
+                                    text: 'El sílabo ha sido procesado correctamente.',
+                                    showConfirmButton: false,
+                                    timer: 2500,
+                                    timerProgressBar: true,
+                                    color: getThemeColor(),
+                                    background: getThemeBackground()
+                                });
                                 generarHTML();
+                                
                             } catch (err) {
                                 console.error('Error al consultar unidades, indicadores o sistema de calificación:', err);
                                 Swal.fire('Error', 'No se pudieron obtener las unidades, indicadores o sistema de calificación. Revisa la consola para más detalles.', 'error');
@@ -567,6 +578,10 @@ const generarHTML = () => {
         const unidadIndex = convertFromRoman(unidadNum) - 1;
         cambiarColorNota(this, unidadIndex);
     });
+
+    $('#btn-area').show();
+    $(".collapse").collapse('toggle');
+    $('#btn-minimas-necesarias').show();
 };
 
 // Función para cambiar el color del input y calcular el promedio
@@ -862,6 +877,104 @@ function calcularNotasMinimasNecesarias() {
         }
     });
 }
+
+// Drag & drop funcional y minimalista para PDF
+$(function () {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('pdfFile');
+    const fileNameArea = document.getElementById('file-name-area');
+    if (!uploadArea || !fileInput) return;
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length && files[0].type === 'application/pdf') {
+            fileInput.files = files;
+            fileNameArea.textContent = files[0].name;
+            fileNameArea.style.color = '#28a745';
+        } else {
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.style.color = '#dc3545';
+        }
+    });
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length && fileInput.files[0].type === 'application/pdf') {
+            fileNameArea.textContent = fileInput.files[0].name;
+            fileNameArea.style.color = '#28a745';
+        } else {
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.style.color = '#dc3545';
+        }
+    });
+});
+
+// Dropzone funcional para PDF
+$(function () {
+    // Desactivar autoDiscover de Dropzone (buena práctica)
+    if (window.Dropzone) Dropzone.autoDiscover = false;
+    const dropZoneElem = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('pdfFile');
+    const fileNameArea = document.getElementById('file-name-area');
+    if (!dropZoneElem || !fileInput) return;
+
+    // Inicializar Dropzone manualmente
+    const dz = new Dropzone(dropZoneElem, {
+        url: '#', // No se sube a servidor
+        autoProcessQueue: false,
+        clickable: fileInput,
+        acceptedFiles: '.pdf',
+        maxFiles: 1,
+        previewsContainer: false,
+        dictDefaultMessage: '',
+        init: function () {
+            this.on('addedfile', function (file) {
+                if (file.type === 'application/pdf') {
+                    // Mostrar nombre
+                    fileNameArea.textContent = file.name;
+                    fileNameArea.style.color = '#28a745';
+                    // Asignar archivo al input para compatibilidad
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                } else {
+                    fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+                    fileNameArea.style.color = '#dc3545';
+                    this.removeFile(file);
+                }
+            });
+            this.on('error', function () {
+                fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+                fileNameArea.style.color = '#dc3545';
+            });
+            this.on('removedfile', function () {
+                fileInput.value = '';
+                fileNameArea.textContent = '';
+            });
+        }
+    });
+
+    // Si el usuario selecciona archivo por el input, mostrar nombre
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length && fileInput.files[0].type === 'application/pdf') {
+            fileNameArea.textContent = fileInput.files[0].name;
+            fileNameArea.style.color = '#28a745';
+        } else {
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.style.color = '#dc3545';
+        }
+    });
+});
 
 // Asignar evento al botón de generar calculadora
 $(document).on('click', '#btn-generar-calc', function (e) {
