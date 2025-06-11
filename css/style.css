@@ -209,7 +209,7 @@ body[data-theme="dark"] img#logo_usat {
     filter: brightness(0) invert(1) grayscale(1) contrast(1.1);
 }
 input.nota::placeholder {
-    color: #111 !important;
+    color: #ffffff !important;
     opacity: 1;
 }
 body[data-theme="dark"] input.nota::placeholder {
