@@ -672,6 +672,10 @@
             deferredPrompt = e;
             $('#install-pwa-fab').show();
         });
+        // For desktop: always show the install button if PWA is not installed and beforeinstallprompt is not fired
+        if (!('onbeforeinstallprompt' in window)) {
+            $('#install-pwa-fab').show();
+        }
         $(document).on('click', '#install-pwa-fab', function(e) {
             e.preventDefault();
             if (deferredPrompt) {
