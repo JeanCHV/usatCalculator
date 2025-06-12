@@ -672,10 +672,14 @@
             deferredPrompt = e;
             $('#install-pwa-fab').show();
         });
-        // For desktop: always show the install button if PWA is not installed and beforeinstallprompt is not fired
-        if (!('onbeforeinstallprompt' in window)) {
-            $('#install-pwa-fab').show();
+        // For desktop: si no se dispara beforeinstallprompt, mostrar el botón y dar feedback
+        function showInstallFabIfDesktop() {
+            var isDesktop = /Win|Linux|Mac/.test(navigator.platform);
+            if (isDesktop) {
+                $('#install-pwa-fab').show();
+            }
         }
+        document.addEventListener('DOMContentLoaded', showInstallFabIfDesktop);
         $(document).on('click', '#install-pwa-fab', function(e) {
             e.preventDefault();
             console.log('Botón instalar app clickeado. deferredPrompt:', deferredPrompt);
