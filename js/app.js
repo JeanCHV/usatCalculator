@@ -8,7 +8,7 @@ var urlApi = 'https://usatcommuniy.pythonanywhere.com/';
 const analizarPDF = async () => {
     const archivo = $("#pdfFile")[0].files[0];
     if (!archivo) {
-        Swal.fire('Error', 'Por favor selecciona un archivo PDF.', 'error');
+        Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Por favor selecciona un archivo PDF.<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
         return;
     }
 
@@ -75,14 +75,13 @@ const analizarPDF = async () => {
 
                 if (inicioUnidades === -1 || finUnidades === -1 || inicioCalificacion === -1 || finReferencias === -1) {
                     await loadingSwal.close();
-                    Swal.fire('Error', 'No se encontraron todas las secciones requeridas en el documento.', 'error');
+                    Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> No se encontraron todas las secciones requeridas en el documento.<br>Error: ' + (error && error.message ? error.message : error) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
                     return;
                 }
 
                 const textoExtraidoUnidades = textoCompleto.substring(inicioUnidades, finUnidades).trim();
                 const textoExtraidoCalificacion = textoCompleto.substring(inicioCalificacion, finReferencias).trim();
 
-                // Extraer datos entre corchetes y mostrarlos en consola como JSON
                 const extraerEntreCorchetes = (texto, patron) => {
                     const regex = new RegExp(patron + "\\s*\\[([^\]]+)\\]", "i");
                     const match = texto.match(regex);
@@ -129,7 +128,7 @@ const analizarPDF = async () => {
                     plan_estudios: extraerPorPrefijoTextoPlano(textoCompleto, "1.3 Ciclo del plan de estudios:"),
                     semestre: extraerPorPrefijoTextoPlano(textoCompleto, "1.9 Semestre académico:")
                 };
-                console.log("Datos extraídos:", JSON.stringify(datosCapturados, null, 2));
+
                 // Extracción de datos estaticos 
                 $.ajax({
                     url: urlApi + '/buscarOInsertarAsignatura',
@@ -138,7 +137,7 @@ const analizarPDF = async () => {
                     data: JSON.stringify(datosCapturados),
                     dataType: 'json',
                     success: async function (response) {
-                        console.log('Datos estáticos obtenidos:', response);
+
                         //Si existe, consultar en la BD MySQL
                         if (response.existed === true) {
                             try {
@@ -174,8 +173,8 @@ const analizarPDF = async () => {
                                 generarHTML();
 
                             } catch (err) {
-                                console.error('Error al consultar unidades, indicadores o sistema de calificación:', err);
-                                Swal.fire('Error', 'No se pudieron obtener las unidades, indicadores o sistema de calificación. Revisa la consola para más detalles.', 'error');
+
+                                Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> No se pudieron obtener las unidades, indicadores o sistema de calificación.<br>Error: ' + (err && err.message ? err.message : (err && err.statusText ? err.statusText : err)) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
                                 loadingSwal.close();
                             }
                         }
@@ -239,11 +238,11 @@ const analizarPDF = async () => {
                                 });
                                 generarHTML();
                             } catch (err) {
-                                console.error('Error en el flujo de Magic Loops o inserciones:', err);
+
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
-                                    text: 'Ocurrió un error en el procesamiento. Revisa la consola para más detalles.',
+                                    html: 'Ocurrió un error en el procesamiento:<br><code>' + (err && err.message ? err.message : (err && err.statusText ? err.statusText : err)) + '</code><br><br><span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>',
                                     color: getThemeColor(),
                                     background: getThemeBackground()
                                 });
@@ -252,25 +251,25 @@ const analizarPDF = async () => {
                         }
                     },
                     error: function (err) {
-                        console.error('Error al obtener datos estáticos:', err);
-                        Swal.fire('Error', 'No se pudieron obtener los datos estáticos. Revisa la consola para más detalles.', 'error');
+
+                        Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> No se pudieron obtener los datos estáticos.<br>Error: ' + (err && err.message ? err.message : (err && err.statusText ? err.statusText : err)) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
                         loadingSwal.close();
                     }
                 });
 
 
             } catch (error) {
-                console.error('Error al procesar PDF:', error);
+
                 await loadingSwal.close();
-                Swal.fire('Error', 'Ocurrió un error al procesar el PDF.', 'error');
+                Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Ocurrió un error al procesar el PDF.<br>Error: ' + (error && error.message ? error.message : error) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
             }
         };
 
         lector.readAsArrayBuffer(archivo);
     } catch (error) {
-        console.error('Error inicial:', error);
+
         await loadingSwal.close();
-        Swal.fire('Error', 'Ocurrió un error al cargar el PDF.', 'error');
+        Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Ocurrió un error al cargar el PDF.<br>Error: ' + (error && error.message ? error.message : error) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
     }
 };
 
@@ -285,12 +284,12 @@ const enviarTexto = async (texto, url) => {
         });
 
         if (!response.ok) {
-            await Swal.fire('Error', 'Error al comunicarse con la API.', response.status);
+            await Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Error al comunicarse con la API.<br>Error: ' + (response && response.statusText ? response.statusText : response.status) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', response.status);
         }
 
         return await response.json();
     } catch (error) {
-        Swal.fire('Error', 'Ocurrió un error al enviar el texto a la API.', 'error');
+        Swal.fire('Error', '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> Ocurrió un error al enviar el texto a la API.<br>Error: ' + (error && error.message ? error.message : error) + '<br>Puedes reportar esta incidencia usando el botón de <b>feedback</b> (esquina inferior derecha).</span>', 'error');
         throw error;
     }
 };
@@ -298,7 +297,7 @@ const enviarTexto = async (texto, url) => {
 const generarHTML = () => {
     if (!data1 || !data1.unidades || data1.unidades.length === 0 || !data2) {
         $("#body-content").html(`
-            <div class="alert alert-warning">No hay datos suficientes para generar la vista.</div>
+            <div class="alert alert-warning">No hay datos suficientes para generar la vista.<br>Puedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).</div>
         `);
         return;
     }
@@ -442,7 +441,7 @@ const generarHTML = () => {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Error',
-                                        text: 'No se pudo copiar la imagen. Prueba en un navegador compatible.',
+                                        html: '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> No se pudo copiar la imagen.<br>Si el problema persiste, por favor repórtalo usando el botón de <b>feedback</b> (esquina inferior derecha).</span> \n Error: ' + (err && err.message ? err.message : err),
                                         timer: 2000,
                                         showConfirmButton: false,
                                         background: getThemeBackground(),
@@ -473,7 +472,7 @@ const generarHTML = () => {
                                     Swal.fire({
                                         icon: 'info',
                                         title: 'Compartir cancelado',
-                                        text: 'No se completó el proceso de compartir.',
+                                        html: '<span style="color:#900;font-weight:bold;"><i class="bi bi-bug"></i> No se completó el proceso de compartir.<br>Si el problema persiste, por favor repórtalo usando el botón de <b>feedback</b> (esquina inferior derecha).</span> \n Error: ' + (err && err.message ? err.message : err),
                                         timer: 2000,
                                         showConfirmButton: false,
                                         background: getThemeBackground(),
@@ -617,7 +616,7 @@ function cambiarColorNota(input, unidadIndex) {
     }
 
     // Log para ver el valor ingresado en cada input
-    console.log(`Nota ingresada en unidad ${unidadIndex + 1}:`, valor);
+
 
     // Calcular el promedio de la unidad
     actualizarPromedioUnidad(unidadIndex);
@@ -649,13 +648,13 @@ function actualizarPromedioUnidad(unidadIndex) {
                 sumaNotas += valor;
                 cantidadNotas++;
                 // Log para ver cada nota de evidencia
-                console.log(`Unidad ${unidadIndex + 1} - Indicador ${indicador.codigo} - Evidencia:`, valor);
+
             }
         });
 
         const promedioIndicador = cantidadNotas > 0 ? (sumaNotas / cantidadNotas) : 0;
         // Log para ver el promedio de cada indicador
-        console.log(`Unidad ${unidadIndex + 1} - Indicador ${indicador.codigo} - Promedio indicador:`, promedioIndicador, 'Peso:', pesoIndicador);
+
 
         promedioUnidad += promedioIndicador * pesoIndicador;
     });
@@ -665,7 +664,7 @@ function actualizarPromedioUnidad(unidadIndex) {
     promedioElemento.text(promedioUnidad.toFixed(2));
 
     // Log para ver el promedio de la unidad
-    console.log(`Promedio calculado para unidad ${unidadIndex + 1}:`, promedioUnidad);
+
 
     // Cambiar color según promedio
     if (promedioUnidad < 13.5) {
@@ -691,12 +690,12 @@ function actualizarPromedioFinal() {
         // Calculamos el promedio ponderado de cada RA
         totalPromedioFinal += (unidadPromedio * raPeso);
         // Log para ver el aporte de cada RA al promedio final
-        console.log(`RA: ${raNombre} (Unidad ${ra.unit}) - Promedio unidad: ${unidadPromedio}, Peso: ${raPeso}, Parcial: ${unidadPromedio * raPeso}`);
+
     });
 
     const promedioFinal = totalPromedioFinal.toFixed(4); // Promedio final calculado
     // Log para ver el promedio final
-    console.log('Promedio final calculado:', promedioFinal);
+
     $("#promedio-final").text(promedioFinal);
 
     // Cambiar color dinámicamente según el promedio final
@@ -728,10 +727,9 @@ function convertFromRoman(roman) {
     return romanNumerals.indexOf(roman) + 1;
 }
 
-// Función para obtener las notas de cada unidad y mostrarlas en consola como array
 function debugNotasPorUnidad() {
     if (!data1 || !data1.unidades) {
-        console.log('No hay datos de unidades disponibles.');
+
         return;
     }
     const notasPorUnidad = data1.unidades.map((unidad, unidadIndex) => {
@@ -751,7 +749,7 @@ function debugNotasPorUnidad() {
             indicadores: notasIndicadores
         };
     });
-    console.log('Notas por unidad:', notasPorUnidad);
+
     return notasPorUnidad;
 }
 
@@ -928,18 +926,16 @@ $(function () {
             fileNameArea.textContent = files[0].name;
             fileNameArea.style.color = '#28a745';
         } else {
-            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.\n.' + ' (Error)' + (e ? ('\n' + e) : '') + '\nPuedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).';
             fileNameArea.style.color = '#dc3545';
         }
     });
     fileInput.addEventListener('change', () => {
-        console.log(files.length);
-        console.log(files[0].type);
         if (fileInput.files.length && fileInput.files[0].type === 'application/pdf') {
             fileNameArea.textContent = fileInput.files[0].name;
             fileNameArea.style.color = '#28a745';
         } else {
-            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.\n.' + ' (Error)' + (e ? ('\n' + e) : '') + '\nPuedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).';
             fileNameArea.style.color = '#dc3545';
         }
     });
@@ -977,13 +973,13 @@ $(function () {
                     dataTransfer.items.add(file);
                     fileInput.files = dataTransfer.files;
                 } else {
-                    fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+                    fileNameArea.textContent = 'Archivo no válido. Sube un PDF.\n.' + ' (Error)' + (e ? ('\n' + e) : '') + '\nPuedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).';
                     fileNameArea.style.color = '#dc3545';
                     this.removeFile(file);
                 }
             });
             this.on('error', function (file, e) {
-                fileNameArea.textContent = 'Archivo no válido. Sube un PDF.' + ' (Error)' + (e ? ('\n' + e) : '');
+                fileNameArea.textContent = 'Archivo no válido. Sube un PDF.\n.' + ' (Error)' + (e ? ('\n' + e) : '') + '\nPuedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).';
                 fileNameArea.style.color = '#dc3545';
             });
             this.on('removedfile', function () {
@@ -999,7 +995,7 @@ $(function () {
             fileNameArea.textContent = fileInput.files[0].name;
             fileNameArea.style.color = '#28a745';
         } else {
-            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            fileNameArea.textContent = 'Archivo no válido. Sube un PDF.\n.' + ' (Error)' + (e ? ('\n' + e) : '') + '\nPuedes reportar esta incidencia usando el botón de feedback (esquina inferior derecha).';
             fileNameArea.style.color = '#dc3545';
         }
     });
