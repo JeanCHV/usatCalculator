@@ -164,9 +164,9 @@ const analizarPDF = async () => {
                                     position: 'top-end',
                                     icon: 'success',
                                     title: 'Éxito',
-                                    text: 'El sílabo ha sido procesado correctamente.',
+                                    html: 'El sílabo ha sido procesado correctamente.<br><br>¿Tienes sugerencias o encontraste algún error? Haz clic en el botón de <b>feedback</b> (esquina inferior derecha) para comunicarte.',
                                     showConfirmButton: false,
-                                    timer: 2500,
+                                    timer: 3500,
                                     timerProgressBar: true,
                                     color: getThemeColor(),
                                     background: getThemeBackground()
@@ -233,7 +233,7 @@ const analizarPDF = async () => {
                                 Swal.fire({
                                     icon: 'success',
                                     title: '¡Listo!',
-                                    text: 'El syllabus ha sido procesado y añadido correctamente. ¡Gracias por tu aporte a la comunidad!',
+                                    html: 'El syllabus ha sido procesado y añadido correctamente.<br><br>¿Tienes sugerencias o encontraste algún error? Haz clic en el botón de <b>feedback</b> (esquina inferior derecha) para comunicarte.',
                                     color: getThemeColor(),
                                     background: getThemeBackground()
                                 });

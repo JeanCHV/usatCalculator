@@ -163,7 +163,9 @@
         <i class="bi bi-arrow-up"></i>
     </a>
     <a href="#" id="install-pwa-fab" title="Instalar aplicación" style="display:none;">
-        <i class="fa-solid fa-download"></i>
+        <span id="install-pwa-icon">
+            <i class="fa-brands fa-android"></i>
+        </span>
     </a>
 
     <style>
@@ -686,6 +688,21 @@
         window.addEventListener('appinstalled', () => {
             $('#install-pwa-fab').hide();
         });
+    </script>
+    <script>
+        function setInstallPwaIcon() {
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            var iconSpan = document.getElementById('install-pwa-icon');
+            if (!iconSpan) return;
+            if (/android/i.test(ua)) {
+                iconSpan.innerHTML = '<i class="fa-brands fa-android"></i>';
+            } else if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document)) {
+                iconSpan.innerHTML = '<i class="fa-brands fa-apple"></i>';
+            } else {
+                iconSpan.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i>';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', setInstallPwaIcon);
     </script>
 
 </body>
