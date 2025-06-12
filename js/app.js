@@ -132,7 +132,7 @@ const analizarPDF = async () => {
                 console.log("Datos extraídos:", JSON.stringify(datosCapturados, null, 2));
                 // Extracción de datos estaticos 
                 $.ajax({
-                    url: urlApi+'/buscarOInsertarAsignatura',
+                    url: urlApi + '/buscarOInsertarAsignatura',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(datosCapturados),
@@ -140,7 +140,7 @@ const analizarPDF = async () => {
                     success: async function (response) {
                         console.log('Datos estáticos obtenidos:', response);
                         //Si existe, consultar en la BD MySQL
-                        if(response.existed === true) {
+                        if (response.existed === true) {
                             try {
                                 // Consultar unidades e indicadores
                                 const data1Result = await $.ajax({
@@ -172,7 +172,7 @@ const analizarPDF = async () => {
                                     background: getThemeBackground()
                                 });
                                 generarHTML();
-                                
+
                             } catch (err) {
                                 console.error('Error al consultar unidades, indicadores o sistema de calificación:', err);
                                 Swal.fire('Error', 'No se pudieron obtener las unidades, indicadores o sistema de calificación. Revisa la consola para más detalles.', 'error');
@@ -215,7 +215,7 @@ const analizarPDF = async () => {
                                 data2 = data2Result;
                                 // 3. Insertar unidades e indicadores
                                 await $.ajax({
-                                    url: urlApi+'/insertarUnidadesIndicadores/' + response.id_asignatura,
+                                    url: urlApi + '/insertarUnidadesIndicadores/' + response.id_asignatura,
                                     method: 'POST',
                                     contentType: 'application/json',
                                     dataType: 'json',
@@ -223,7 +223,7 @@ const analizarPDF = async () => {
                                 });
                                 // 4. Insertar sistema de calificación
                                 await $.ajax({
-                                    url: urlApi+'/insertarSistemaCalificacion/' + response.id_asignatura,
+                                    url: urlApi + '/insertarSistemaCalificacion/' + response.id_asignatura,
                                     method: 'POST',
                                     contentType: 'application/json',
                                     dataType: 'json',
@@ -591,7 +591,7 @@ const generarHTML = () => {
     $(".collapse").collapse('toggle');
     $('#ia-fab').show();
     // Asignar evento para autollenado IA
-    $('#ia-fab').off('click').on('click', function() {
+    $('#ia-fab').off('click').on('click', function () {
         calcularNotasMinimasNecesarias();
     });
 };
@@ -918,8 +918,13 @@ $(function () {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
+        // Permitir sobreescribir el archivo anterior
+        fileInput.value = '';
         if (files.length && files[0].type === 'application/pdf') {
-            fileInput.files = files;
+            // Crear un nuevo DataTransfer para sobreescribir correctamente
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(files[0]);
+            fileInput.files = dataTransfer.files;
             fileNameArea.textContent = files[0].name;
             fileNameArea.style.color = '#28a745';
         } else {
@@ -928,6 +933,8 @@ $(function () {
         }
     });
     fileInput.addEventListener('change', () => {
+        console.log(files.length);
+        console.log(files[0].type);
         if (fileInput.files.length && fileInput.files[0].type === 'application/pdf') {
             fileNameArea.textContent = fileInput.files[0].name;
             fileNameArea.style.color = '#28a745';
@@ -958,8 +965,11 @@ $(function () {
         dictDefaultMessage: '',
         init: function () {
             this.on('addedfile', function (file) {
+                // Limpiar archivos previos si ya hay uno
+                if (this.files.length > 1) {
+                    this.removeAllFiles(true);
+                }
                 if (file.type === 'application/pdf') {
-                    // Mostrar nombre
                     fileNameArea.textContent = file.name;
                     fileNameArea.style.color = '#28a745';
                     // Asignar archivo al input para compatibilidad
@@ -972,8 +982,8 @@ $(function () {
                     this.removeFile(file);
                 }
             });
-            this.on('error', function () {
-                fileNameArea.textContent = 'Archivo no válido. Sube un PDF.';
+            this.on('error', function (file, e) {
+                fileNameArea.textContent = 'Archivo no válido. Sube un PDF.' + ' (Error)' + (e ? ('\n' + e) : '');
                 fileNameArea.style.color = '#dc3545';
             });
             this.on('removedfile', function () {
