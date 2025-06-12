@@ -42,8 +42,4 @@
 - Validaciones automáticas y mensajes de feedback más claros.
 - Corrección de pequeños errores y optimización del rendimiento general de la aplicación.
 
----
-
-Para versiones anteriores, ver el historial previo en este archivo.
-
 
