@@ -678,13 +678,24 @@
         }
         $(document).on('click', '#install-pwa-fab', function(e) {
             e.preventDefault();
+            console.log('Botón instalar app clickeado. deferredPrompt:', deferredPrompt);
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
+                    console.log('Resultado de instalación:', choiceResult);
                     if (choiceResult.outcome === 'accepted') {
                         $('#install-pwa-fab').hide();
                     }
                     deferredPrompt = null;
+                });
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Instalación de la app',
+                    html: 'Para instalar la app, usa la opción "Instalar" de tu navegador o arrastra este icono a tu escritorio.<br><br>Si no ves la opción, prueba desde el navegador Chrome, Edge o en tu dispositivo móvil.',
+                    color: getThemeColor(),
+                    background: getThemeBackground(),
+                    confirmButtonText: 'Entendido'
                 });
             }
         });
