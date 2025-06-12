@@ -4,6 +4,7 @@ const PRECACHE_URLS = [
   '/',
   'assets/img/usat_logo.png',
   'assets/img/usat_logo_red.jpg',
+  'https://fonts.googleapis.com/icon?family=Material+Icons',
   '/offline.html'
 ];
 

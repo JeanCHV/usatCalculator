@@ -497,14 +497,8 @@ const generarHTML = () => {
         });
     });
 
-    // Botón para calcular notas mínimas necesarias
-    if ($("#btn-minimas-necesarias").length === 0) {
-        $("#body-content").prepend('<button id="btn-minimas-necesarias" class="btn btn-warning mb-3"><i class="bi bi-calculator"></i> ¿Qué nota necesito para aprobar?</button>');
-    }
-    $("#btn-minimas-necesarias").off("click").on("click", function () {
-        calcularNotasMinimasNecesarias();
-    });
-
+    // Eliminar el botón de calcular notas mínimas necesarias visualmente si existe
+    $("#btn-minimas-necesarias").remove();
     // Mejoras visuales generales para la UI dinámica
     $("#body-content .card").addClass("shadow-lg border-0 mb-4");
     $("#body-content .card-header").css({
@@ -595,7 +589,11 @@ const generarHTML = () => {
 
     $('#btn-area').show();
     $(".collapse").collapse('toggle');
-    $('#btn-minimas-necesarias').show();
+    $('#ia-fab').show();
+    // Asignar evento para autollenado IA
+    $('#ia-fab').off('click').on('click', function() {
+        calcularNotasMinimasNecesarias();
+    });
 };
 
 // Función para cambiar el color del input y calcular el promedio
@@ -760,12 +758,15 @@ function debugNotasPorUnidad() {
 // Calcula y muestra las notas mínimas necesarias para aprobar considerando el promedio final ponderado
 function calcularNotasMinimasNecesarias() {
     const NOTA_APROBATORIA = 13.5;
-    let detalles = [];
-    let puedeAprobar = true;
+    if (!data1 || !data2) return;
     let unidadesPendientes = [];
+    let pesosUnidades = {};
+    data2.learning_results.forEach(result => {
+        const unidadNum = result.unit;
+        pesosUnidades[unidadNum] = result.weight;
+    });
     // 1. Recolectar info de inputs y pesos
     data1.unidades.forEach((unidad, unidadIndex) => {
-        let sumaPesos = 0;
         let sumaNotas = 0;
         let faltanInputs = [];
         let totalInputs = 0;
@@ -794,17 +795,10 @@ function calcularNotasMinimasNecesarias() {
             detallesInputs
         });
     });
-    // 2. Calcular las notas mínimas necesarias para aprobar el promedio final ponderado
-    // a) Obtener pesos de cada unidad (RA)
-    let pesosUnidades = {};
-    data2.learning_results.forEach(result => {
-        const unidadNum = result.unit; // I, II, III...
-        pesosUnidades[unidadNum] = result.weight;
-    });
-    // b) Calcular el promedio final actual y cuántos campos faltan en total
-    let promedioFinalActual = 0;
+    // 2. Calcular la nota mínima global para que el promedio final sea 13.5
     let totalFaltantes = 0;
     let faltantesGlobal = [];
+    let promedioFinalActual = 0;
     unidadesPendientes.forEach((u, idx) => {
         const unidadNum = convertToRoman(idx + 1);
         const pesoUnidad = pesosUnidades[unidadNum] || 0;
@@ -817,17 +811,8 @@ function calcularNotasMinimasNecesarias() {
             faltantesGlobal.push({ unidadIndex: idx, pesoUnidad, faltanInputs: u.faltanInputs, totalInputs: u.totalInputs, sumaNotas: u.sumaNotas, cantidadLlenos });
         }
     });
-    // c) Calcular la nota mínima global que debe ir en cada campo pendiente para llegar a 13.5 en el promedio final
     let notaMinimaGlobal = null;
     if (totalFaltantes > 0) {
-        // Sea x la nota a poner en cada campo pendiente
-        // promedioFinal = promedioFinalActual + sum(pesoUnidad * promedioUnidadPendiente)
-        // promedioUnidadPendiente = (sumaNotas + x * faltantes) / totalInputs
-        // promedioFinal = ... >= 13.5
-        // Resolvemos para x:
-        // promedioFinal = promedioFinalActual + sum( pesoUnidad * (sumaNotas + x * faltantes) / totalInputs )
-        // promedioFinal >= 13.5
-        // x = (13.5 - promedioFinalActual - sum( pesoUnidad * sumaNotas / totalInputs )) / sum( pesoUnidad * faltantes / totalInputs )
         let sumPesosNotas = 0;
         let sumPesosFaltantes = 0;
         faltantesGlobal.forEach(fg => {
@@ -836,107 +821,81 @@ function calcularNotasMinimasNecesarias() {
         });
         notaMinimaGlobal = (NOTA_APROBATORIA - promedioFinalActual - sumPesosNotas) / (sumPesosFaltantes || 1);
         notaMinimaGlobal = Math.max(0, Math.min(20, notaMinimaGlobal));
-        if (notaMinimaGlobal > 20) puedeAprobar = false;
     }
-    // 3. Mostrar detalle por campo
-    let mensaje = '';
-    if (totalFaltantes === 0) {
-        mensaje = '<div class="alert alert-success text-center mb-0"><b>¡Ya tienes todas las notas ingresadas!</b></div>';
-    } else {
-        mensaje = '<div class="mb-2"><b>Notas mínimas necesarias para aprobar cada campo (considerando el promedio final 13.5):</b></div>';
-        unidadesPendientes.forEach((u, idx) => {
-            mensaje += `<div class='mb-2'><b>${u.unidad.unidad}</b><ul class='list-group mt-1'>`;
+    // 3. Ajustar para que cada unidad también tenga promedio 13.5
+    // Si hay unidades con campos pendientes, recalcular para que su promedio sea 13.5
+    let delay = 0;
+    unidadesPendientes.forEach((u, idx) => {
+        if (u.faltanInputs.length > 0) {
+            let sumaActual = u.sumaNotas;
+            let faltan = u.faltanInputs.length;
+            let notaUnidad = (NOTA_APROBATORIA * u.totalInputs - sumaActual) / (faltan || 1);
+            notaUnidad = Math.max(0, Math.min(20, notaUnidad));
+            if (notaMinimaGlobal !== null) notaUnidad = Math.min(notaUnidad, notaMinimaGlobal);
             u.detallesInputs.forEach(d => {
-                mensaje += `<li class='list-group-item d-flex justify-content-between align-items-center ${d.pendiente ? 'list-group-item-warning' : 'list-group-item-success'}'>
-                    <span><b>${d.indicador}</b> - ${d.evidencia}</span>
-                    <span>${d.pendiente ? `<span class='badge bg-warning text-dark'>Necesitas ${notaMinimaGlobal !== null ? notaMinimaGlobal.toFixed(2) : '--'}</span>` : `<span class='badge bg-success'>${d.valor.toFixed(2)}</span>`}</span>
-                </li>`;
+                if (d.pendiente && d.input) {
+                    const valorStr = notaUnidad.toFixed(2);
+                    $(d.input).val("");
+                    // Scroll al input antes de escribir
+                    setTimeout(() => {
+                        d.input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, delay);
+                    // Simular escritura número por número
+                    for (let i = 0; i < valorStr.length; i++) {
+                        setTimeout(() => {
+                            let actual = $(d.input).val() + valorStr[i];
+                            $(d.input).val(actual);
+                            $(d.input)[0].dispatchEvent(new Event('input', { bubbles: true }));
+                            $(d.input)[0].dispatchEvent(new Event('keyup', { bubbles: true }));
+                        }, delay + 80 * i);
+                    }
+                    // Asegurar valor final
+                    setTimeout(() => {
+                        $(d.input).val(valorStr);
+                        $(d.input)[0].dispatchEvent(new Event('input', { bubbles: true }));
+                        $(d.input)[0].dispatchEvent(new Event('keyup', { bubbles: true }));
+                    }, delay + 80 * valorStr.length + 60);
+                    delay += 80 * valorStr.length + 120;
+                }
             });
-            mensaje += '</ul></div>';
-        });
-        if (!puedeAprobar) {
-            mensaje += '<div class="alert alert-danger text-center">Con las notas actuales, <b>no es posible aprobar</b> aunque saques 20 en los campos pendientes.</div>';
-        } else {
-            mensaje += '<div class="alert alert-info text-center mb-0">El cálculo es estimado y supone que el resto de notas se mantienen igual. El promedio final debe ser al menos 13.5.</div>';
-        }
-        // El botón flotante se añade fuera del modal, no aquí
-    }
-    Swal.fire({
-        icon: 'info',
-        title: '<i class="bi bi-clipboard2-check"></i> Notas mínimas necesarias',
-        html: mensaje,
-        confirmButtonText: 'Cerrar',
-        background: getThemeBackground(),
-        color: getThemeColor(),
-        customClass: {
-            title: 'swal2-title-custom',
-            popup: 'swal2-popup-custom',
-            htmlContainer: 'swal2-html-custom'
-        },
-        didOpen: () => {
-            // El botón flotante se gestiona fuera del modal
-        },
-        willClose: () => {
-            $("#btn-autollenar-minimas-flotante").hide();
         }
     });
-
-    // --- BOTÓN FLOTANTE DE LLENADO AUTOMÁTICO ---
-    if (totalFaltantes > 0 && puedeAprobar) {
-        if ($("#btn-autollenar-minimas-flotante").length === 0) {
-            $("body").append(`
-                <button id="btn-autollenar-minimas-flotante" title="Llenar automáticamente campos pendientes con IA" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#0074D9;color:white;border:none;border-radius:50%;width:64px;height:64px;box-shadow:0 4px 16px rgba(0,0,0,0.18);font-size:2em;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">
-                    <i class="bi bi-magic"></i>
-                </button>
-            `);
-        } else {
-            $("#btn-autollenar-minimas-flotante").show();
+    // 4. Ajustar el promedio final a 13.5 si hay redondeos
+    setTimeout(() => {
+        for (let i = 0; i < data1.unidades.length; i++) {
+            actualizarPromedioUnidad(i);
         }
-        $("#btn-autollenar-minimas-flotante").off("click").on("click", function () {
-            // --- COMPORTAMIENTO TIPO IA ---
-            if (notaMinimaGlobal !== null && puedeAprobar) {
-                // Distribuir las notas mínimas de forma "inteligente":
-                // - Variar ligeramente las notas entre los campos pendientes, pero asegurando el promedio final >= 13.5
-                // - Simular que la IA "adivina" que puedes rendir mejor en algunos campos
-                let faltantesTotales = 0;
-                unidadesPendientes.forEach(u => faltantesTotales += u.faltanInputs.length);
-                let sumaNotas = 0;
-                let notasGeneradas = [];
-                for (let i = 0; i < faltantesTotales; i++) {
-                    // Variación aleatoria +/- 0.5 sobre la nota mínima, pero dentro de 0-20
-                    let variacion = (Math.random() - 0.5) * 1.0;
-                    let nota = Math.max(0, Math.min(20, notaMinimaGlobal + variacion));
-                    notasGeneradas.push(nota);
-                    sumaNotas += nota;
+        actualizarPromedioFinal();
+        let promedioFinal = parseFloat($("#promedio-final").text());
+        if (totalFaltantes > 0 && Math.abs(promedioFinal - NOTA_APROBATORIA) > 0.01) {
+            let lastInput = null;
+            for (let i = unidadesPendientes.length - 1; i >= 0; i--) {
+                let u = unidadesPendientes[i];
+                for (let j = u.detallesInputs.length - 1; j >= 0; j--) {
+                    let d = u.detallesInputs[j];
+                    if (d.pendiente && d.input) {
+                        lastInput = d.input;
+                        break;
+                    }
                 }
-                // Ajustar para que el promedio final siga cumpliendo la meta
-                let ajuste = (notaMinimaGlobal * faltantesTotales - sumaNotas) / faltantesTotales;
-                notasGeneradas = notasGeneradas.map(n => Math.max(0, Math.min(20, n + ajuste)));
-                // Llenar los campos pendientes con las notas generadas
-                let idxNota = 0;
-                unidadesPendientes.forEach(u => {
-                    u.detallesInputs.forEach(d => {
-                        if (d.pendiente && d.input) {
-                            $(d.input).val(notasGeneradas[idxNota].toFixed(2)).trigger('input');
-                            idxNota++;
-                        }
-                    });
-                });
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Campos llenados con IA',
-                    text: 'Las notas mínimas necesarias han sido distribuidas de forma inteligente.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: getThemeBackground(),
-                    color: getThemeColor()
-                });
+                if (lastInput) break;
             }
-        });
-    } else {
-        $("#btn-autollenar-minimas-flotante").hide();
-    }
-};
+            if (lastInput) {
+                let ajuste = NOTA_APROBATORIA - promedioFinal;
+                let valorActual = parseFloat($(lastInput).val()) || 0;
+                let nuevoValor = Math.max(0, Math.min(20, valorActual + ajuste));
+                $(lastInput).val(nuevoValor.toFixed(2));
+                $(lastInput)[0].dispatchEvent(new Event('input', { bubbles: true }));
+                $(lastInput)[0].dispatchEvent(new Event('keyup', { bubbles: true }));
+                lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                for (let i = 0; i < data1.unidades.length; i++) {
+                    actualizarPromedioUnidad(i);
+                }
+                actualizarPromedioFinal();
+            }
+        }
+    }, delay + 200);
+}
 
 // Drag & drop funcional y minimalista para PDF
 $(function () {
