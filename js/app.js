@@ -53,6 +53,20 @@ const analizarPDF = async () => {
                 const semestreFin = textoCompleto.indexOf("1.10 Grupo Horario:");
                 Semestre = textoCompleto.substring(semestreInicio, semestreFin).trim();
 
+                // Validación de semestre actual
+                const semestreActual = obtenerSemestreActual();
+                if (Semestre !== semestreActual) {
+                    await loadingSwal.close();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Semestre incorrecto',
+                        text: `El sílabo corresponde al semestre: ${Semestre}.\nSolo se permite procesar sílabos del semestre actual (${semestreActual}).`,
+                        color: getThemeColor ? getThemeColor() : undefined,
+                        background: getThemeBackground ? getThemeBackground() : undefined
+                    });
+                    return;
+                }
+
                 // Extraer secciones importantes
                 const inicioUnidades = textoCompleto.indexOf("UNIDADES DIDÁCTICAS");
                 const finUnidades = textoCompleto.indexOf("ESTRATEGIAS DIDÁCTICAS");
@@ -845,8 +859,7 @@ function calcularNotasMinimasNecesarias() {
         } else {
             mensaje += '<div class="alert alert-info text-center mb-0">El cálculo es estimado y supone que el resto de notas se mantienen igual. El promedio final debe ser al menos 13.5.</div>';
         }
-        // Botón para llenar automáticamente los campos pendientes
-        mensaje += `<div class='d-flex justify-content-center mt-3'><button id='btn-autollenar-minimas' class='btn btn-outline-primary'><i class='bi bi-magic'></i> Llenar campos con notas mínimas</button></div>`;
+        // El botón flotante se añade fuera del modal, no aquí
     }
     Swal.fire({
         icon: 'info',
@@ -861,22 +874,69 @@ function calcularNotasMinimasNecesarias() {
             htmlContainer: 'swal2-html-custom'
         },
         didOpen: () => {
-            // Llenar automáticamente los campos pendientes
-            $("#btn-autollenar-minimas").on("click", function () {
-                if (notaMinimaGlobal !== null && puedeAprobar) {
-                    unidadesPendientes.forEach(u => {
-                        u.detallesInputs.forEach(d => {
-                            if (d.pendiente && d.input) {
-                                $(d.input).val(notaMinimaGlobal.toFixed(2)).trigger('input');
-                            }
-                        });
-                    });
-                }
-                Swal.close();
-            });
+            // El botón flotante se gestiona fuera del modal
+        },
+        willClose: () => {
+            $("#btn-autollenar-minimas-flotante").hide();
         }
     });
-}
+
+    // --- BOTÓN FLOTANTE DE LLENADO AUTOMÁTICO ---
+    if (totalFaltantes > 0 && puedeAprobar) {
+        if ($("#btn-autollenar-minimas-flotante").length === 0) {
+            $("body").append(`
+                <button id="btn-autollenar-minimas-flotante" title="Llenar automáticamente campos pendientes con IA" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#0074D9;color:white;border:none;border-radius:50%;width:64px;height:64px;box-shadow:0 4px 16px rgba(0,0,0,0.18);font-size:2em;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">
+                    <i class="bi bi-magic"></i>
+                </button>
+            `);
+        } else {
+            $("#btn-autollenar-minimas-flotante").show();
+        }
+        $("#btn-autollenar-minimas-flotante").off("click").on("click", function () {
+            // --- COMPORTAMIENTO TIPO IA ---
+            if (notaMinimaGlobal !== null && puedeAprobar) {
+                // Distribuir las notas mínimas de forma "inteligente":
+                // - Variar ligeramente las notas entre los campos pendientes, pero asegurando el promedio final >= 13.5
+                // - Simular que la IA "adivina" que puedes rendir mejor en algunos campos
+                let faltantesTotales = 0;
+                unidadesPendientes.forEach(u => faltantesTotales += u.faltanInputs.length);
+                let sumaNotas = 0;
+                let notasGeneradas = [];
+                for (let i = 0; i < faltantesTotales; i++) {
+                    // Variación aleatoria +/- 0.5 sobre la nota mínima, pero dentro de 0-20
+                    let variacion = (Math.random() - 0.5) * 1.0;
+                    let nota = Math.max(0, Math.min(20, notaMinimaGlobal + variacion));
+                    notasGeneradas.push(nota);
+                    sumaNotas += nota;
+                }
+                // Ajustar para que el promedio final siga cumpliendo la meta
+                let ajuste = (notaMinimaGlobal * faltantesTotales - sumaNotas) / faltantesTotales;
+                notasGeneradas = notasGeneradas.map(n => Math.max(0, Math.min(20, n + ajuste)));
+                // Llenar los campos pendientes con las notas generadas
+                let idxNota = 0;
+                unidadesPendientes.forEach(u => {
+                    u.detallesInputs.forEach(d => {
+                        if (d.pendiente && d.input) {
+                            $(d.input).val(notasGeneradas[idxNota].toFixed(2)).trigger('input');
+                            idxNota++;
+                        }
+                    });
+                });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Campos llenados con IA',
+                    text: 'Las notas mínimas necesarias han sido distribuidas de forma inteligente.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: getThemeBackground(),
+                    color: getThemeColor()
+                });
+            }
+        });
+    } else {
+        $("#btn-autollenar-minimas-flotante").hide();
+    }
+};
 
 // Drag & drop funcional y minimalista para PDF
 $(function () {
@@ -981,3 +1041,19 @@ $(document).on('click', '#btn-generar-calc', function (e) {
     e.preventDefault();
     analizarPDF();
 });
+
+// Devuelve el semestre actual en formato 'AÑO-0', 'AÑO-I' o 'AÑO-II' según la fecha
+function obtenerSemestreActual() {
+    const hoy = new Date();
+    const mes = hoy.getMonth() + 1; // 1-12
+    const anio = hoy.getFullYear();
+    if (mes >= 1 && mes <= 3) {
+        return `${anio}-0`;
+    } else if (mes >= 4 && mes <= 7) {
+        return `${anio}-I`;
+    } else if (mes >= 8 && mes <= 12) {
+        return `${anio}-II`;
+    }
+    // Fallback
+    return `${anio}-I`;
+}
