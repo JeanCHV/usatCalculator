@@ -35,7 +35,6 @@
 - Optimización de scripts para una carga y respuesta más rápida en dispositivos móviles.
 
 ## v1.3.2 - 2025-06-12
-### Cambios generales
 - Mejor experiencia de usuario con una interfaz más intuitiva y atractiva.
 - El autollenado inteligente de notas es más realista y preciso, facilitando el cálculo de promedios.
 - Gestión de archivos PDF más sencilla y flexible, permitiendo reemplazar archivos fácilmente.
