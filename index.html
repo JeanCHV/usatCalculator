@@ -698,6 +698,12 @@
                 iconSpan.innerHTML = '<i class="fa-brands fa-android"></i>';
             } else if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document)) {
                 iconSpan.innerHTML = '<i class="fa-brands fa-apple"></i>';
+            } else if (/Win/.test(navigator.platform)) {
+                iconSpan.innerHTML = '<i class="fa-brands fa-microsoft"></i>';
+            } else if (/Linux/.test(navigator.platform)) {
+                iconSpan.innerHTML = '<i class="fa-brands fa-linux"></i>';
+            } else if (/Mac/.test(navigator.platform)) {
+                iconSpan.innerHTML = '<i class="fa-brands fa-apple"></i>';
             } else {
                 iconSpan.innerHTML = '<i class="fa-solid fa-mobile-screen-button"></i>';
             }
