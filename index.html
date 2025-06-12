@@ -153,7 +153,7 @@
     <a href="#" id="help-fab" title="Ayuda / Soporte">
         <i class="fa-solid fa-question"></i>
     </a>
-    <a href="https://wa.me/51960920160" target="_blank" id="feedback-fab" title="Enviar sugerencia o reporte por WhatsApp">
+    <a href="https://forms.gle/3DooFoLtvQUjrsxH8" target="_blank" id="feedback-fab" title="Enviar sugerencia o reporte">
         <i class="fa-solid fa-comments"></i>
     </a>
     <a href="#" id="share-fab" title="Compartir esta app">
@@ -162,10 +162,13 @@
     <a href="#" id="top-fab" title="Volver arriba">
         <i class="bi bi-arrow-up"></i>
     </a>
+    <a href="#" id="install-pwa-fab" title="Instalar aplicación" style="display:none;">
+        <i class="fa-solid fa-download"></i>
+    </a>
 
     <style>
         /* Botones flotantes reordenados y sin whatsapp-fab */
-        #help-fab, #feedback-fab, #share-fab, #top-fab {
+        #help-fab, #feedback-fab, #share-fab, #top-fab, #install-pwa-fab {
             position: fixed;
             right: 18px;
             z-index: 99999;
@@ -217,8 +220,17 @@
             background: #218838;
             color: #fff;
         }
+        #install-pwa-fab {
+            background: #6f42c1;
+            color: #fff;
+            bottom: 194px;
+        }
+        #install-pwa-fab:hover {
+            background: #563d7c;
+            color: #fff;
+        }
         @media (max-width: 375px) {
-            #help-fab, #feedback-fab, #share-fab, #top-fab {
+            #help-fab, #feedback-fab, #share-fab, #top-fab, #install-pwa-fab {
                 width: 36px !important;
                 height: 36px !important;
                 font-size: 1.1rem !important;
@@ -227,6 +239,7 @@
             #feedback-fab { bottom: 74px; }
             #share-fab { bottom: 38px; }
             #top-fab { bottom: 8px; }
+            #install-pwa-fab { bottom: 146px; }
         }
 
         /* Responsive: reducir fuentes y paddings en móviles */
@@ -620,6 +633,29 @@
                     confirmButtonText: 'Cerrar'
                 });
             }
+        });
+        // Lógica para el botón de instalación de PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            $('#install-pwa-fab').show();
+        });
+        $(document).on('click', '#install-pwa-fab', function(e) {
+            e.preventDefault();
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        $('#install-pwa-fab').hide();
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+        // Ocultar el botón si ya está instalado
+        window.addEventListener('appinstalled', () => {
+            $('#install-pwa-fab').hide();
         });
     </script>
 
