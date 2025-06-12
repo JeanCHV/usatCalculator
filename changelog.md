@@ -34,4 +34,17 @@
 - Correcciones menores de estilo y consistencia visual en los botones flotantes.
 - Optimización de scripts para una carga y respuesta más rápida en dispositivos móviles.
 
+## v1.3.2 - 2025-06-12
+### Cambios generales
+- Mejor experiencia de usuario con una interfaz más intuitiva y atractiva.
+- El autollenado inteligente de notas es más realista y preciso, facilitando el cálculo de promedios.
+- Gestión de archivos PDF más sencilla y flexible, permitiendo reemplazar archivos fácilmente.
+- Botones flotantes (FABs) optimizados para mayor comodidad y claridad.
+- Validaciones automáticas y mensajes de feedback más claros.
+- Corrección de pequeños errores y optimización del rendimiento general de la aplicación.
+
+---
+
+Para versiones anteriores, ver el historial previo en este archivo.
+
 
