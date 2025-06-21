@@ -635,6 +635,7 @@ function actualizarPromedioUnidad(unidadIndex) {
         // Peso del indicador en decimal
         var pesoUnidad = indicador.peso == 'Prom.Simple' ? 100 : parseFloat(indicador.peso);
         const pesoIndicador = parseFloat(pesoUnidad) / 100;
+        console.log('pesoIndicador: ', pesoIndicador);
 
         // Inputs de evidencias que pertenecen a este indicador
         let sumaNotas = 0;
@@ -655,10 +656,12 @@ function actualizarPromedioUnidad(unidadIndex) {
         });
 
         const promedioIndicador = cantidadNotas > 0 ? (sumaNotas / cantidadNotas) : 0;
+        console.log('promedioIndicador: ', promedioIndicador);
         // Log para ver el promedio de cada indicador
 
 
         promedioUnidad += promedioIndicador * pesoIndicador;
+        console.log('promedioUnidad: ', promedioUnidad);
     });
 
     // Actualizar el promedio en el HTML
