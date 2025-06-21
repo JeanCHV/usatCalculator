@@ -571,7 +571,9 @@ const generarHTML = () => {
     // Asignar eventos con jQuery a los inputs de nota
     $(".nota").on("input", function (e) {
         let val = $(this).val();
+        console.log('val: ', val);
         let num = val === '' ? '' : parseFloat(val);
+        console.log('num: ', num);
         if (!isNaN(num)) {
             if (num > 20) num = 20;
             if (num < 0) num = 0;
