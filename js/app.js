@@ -136,6 +136,19 @@ const analizarPDF = async () => {
                     contentType: 'application/json',
                     data: JSON.stringify(datosCapturados),
                     dataType: 'json',
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Enviando datos...',
+                            html: '<span style="color:#900;font-weight:bold;"><i class="bi bi-info-circle"></i> Por favor, no abandones la aplicación ni pierdas la conexión durante este proceso. De lo contrario, el curso no se registrará correctamente.</span>',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            },
+                            color: getThemeColor(),
+                            background: getThemeBackground()
+                        });
+                    },
                     success: async function (response) {
 
                         //Si existe, consultar en la BD MySQL
