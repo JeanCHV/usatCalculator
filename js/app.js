@@ -136,7 +136,7 @@ const analizarPDF = async () => {
                     contentType: 'application/json',
                     data: JSON.stringify(datosCapturados),
                     dataType: 'json',
-                    beforeSend: function() {
+                    beforeSend: function () {
                         Swal.fire({
                             title: 'Enviando datos...',
                             html: '<span style="color:#900;font-weight:bold;"><i class="bi bi-info-circle"></i> Por favor, no abandones la aplicación ni pierdas la conexión durante este proceso. De lo contrario, el curso no se registrará correctamente.</span>',
@@ -153,6 +153,25 @@ const analizarPDF = async () => {
 
                         //Si existe, consultar en la BD MySQL
                         if (response.existed === true) {
+                            // 1. Primero subir el archivo PDF del sílabo
+                            const archivo = $("#pdfFile")[0].files[0];
+                            if (archivo) {
+                                const formData = new FormData();
+                                formData.append('file', archivo);
+
+                                const uploadResponse = await fetch(`${urlApi}/subirSilabo/${response.id_asignatura}`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+
+                                if (!uploadResponse.ok) {
+                                    throw new Error('Error al subir el sílabo');
+                                }
+
+                                const uploadData = await uploadResponse.json();
+                                console.log('Sílabo subido:', uploadData);
+                            }
+
                             try {
                                 // Consultar unidades e indicadores
                                 const data1Result = await $.ajax({
@@ -241,6 +260,40 @@ const analizarPDF = async () => {
                                     dataType: 'json',
                                     data: JSON.stringify(data2)
                                 });
+                                //6. Volver a consultar  datos estaticos 
+
+                                $.ajax({
+                                    url: urlApi + '/buscarOInsertarAsignatura',
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(datosCapturados),
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        // 1. Primero subir el archivo PDF del sílabo
+                                        const archivo = $("#pdfFile")[0].files[0];
+                                        if (archivo) {
+                                            const formData = new FormData();
+                                            formData.append('file', archivo);
+
+                                            const uploadResponse =  fetch(`${urlApi}/subirSilabo/${response.id_asignatura}`, {
+                                                method: 'POST',
+                                                body: formData
+                                            });
+
+                                            if (!uploadResponse.ok) {
+                                                throw new Error('Error al subir el sílabo');
+                                            }
+
+                                            const uploadData =  uploadResponse.json();
+                                            console.log('Sílabo subido:', uploadData);
+                                        }
+
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error('Error al consultar datos estáticos:', error);
+                                    }
+                                });
+
                                 await loadingSwal.close();
                                 Swal.fire({
                                     icon: 'success',

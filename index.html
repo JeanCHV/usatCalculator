@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="css/style.css" rel="stylesheet">
     <link rel="manifest" href="manifest.webmanifest">
-    
+
     <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
     <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
     <script>
@@ -148,7 +148,7 @@
 
     <!-- Botones flotantes -->
     <a href="#" id="ia-fab" title="Llenar automáticamente campos pendientes con IA" style="display:none;">
-         <i class="fas fa-magic icon"></i>
+        <i class="fas fa-magic icon"></i>
     </a>
     <a href="#" id="help-fab" title="Ayuda / Soporte">
         <i class="fa-solid fa-question"></i>
@@ -170,7 +170,11 @@
 
     <style>
         /* Botones flotantes reordenados y sin whatsapp-fab */
-        #help-fab, #feedback-fab, #share-fab, #top-fab, #install-pwa-fab {
+        #help-fab,
+        #feedback-fab,
+        #share-fab,
+        #top-fab,
+        #install-pwa-fab {
             position: fixed;
             right: 18px;
             z-index: 99999;
@@ -180,57 +184,68 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
             font-size: 1.4rem;
             transition: box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s;
             text-decoration: none;
             border: none;
         }
+
         #help-fab {
             background: #f0ad4e;
             color: #fff;
             bottom: 146px;
         }
+
         #help-fab:hover {
             background: #ec971f;
             color: #fff;
         }
+
         #feedback-fab {
             background: #5bc0de;
             color: #fff;
             bottom: 98px;
         }
+
         #feedback-fab:hover {
             background: #31b0d5;
             color: #fff;
         }
+
         #share-fab {
             background: #007bff;
             color: #fff;
             bottom: 50px;
         }
+
         #share-fab:hover {
             background: #0056b3;
             color: #fff;
         }
+
         #top-fab {
             background: #28a745;
             color: #fff;
             bottom: 10px;
         }
+
         #top-fab:hover {
             background: #218838;
             color: #fff;
         }
+
         #install-pwa-fab {
             background: #6f42c1;
             color: #fff;
             bottom: 194px;
         }
+
         #install-pwa-fab:hover {
             background: #563d7c;
             color: #fff;
         }
+
         #ia-fab {
             position: fixed;
             right: 18px;
@@ -241,7 +256,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
             font-size: 1.4rem;
             transition: box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s;
             text-decoration: none;
@@ -250,21 +265,44 @@
             color: #fff;
             bottom: 242px;
         }
+
         #ia-fab:hover {
             background: #b52a1a;
             color: #fff;
         }
+
         @media (max-width: 375px) {
-            #help-fab, #feedback-fab, #share-fab, #top-fab, #install-pwa-fab {
+
+            #help-fab,
+            #feedback-fab,
+            #share-fab,
+            #top-fab,
+            #install-pwa-fab {
                 width: 36px !important;
                 height: 36px !important;
                 font-size: 1.1rem !important;
             }
-            #help-fab { bottom: 110px; }
-            #feedback-fab { bottom: 74px; }
-            #share-fab { bottom: 38px; }
-            #top-fab { bottom: 8px; }
-            #install-pwa-fab { bottom: 146px; }
+
+            #help-fab {
+                bottom: 110px;
+            }
+
+            #feedback-fab {
+                bottom: 74px;
+            }
+
+            #share-fab {
+                bottom: 38px;
+            }
+
+            #top-fab {
+                bottom: 8px;
+            }
+
+            #install-pwa-fab {
+                bottom: 146px;
+            }
+
             #ia-fab {
                 width: 36px !important;
                 height: 36px !important;
@@ -680,7 +718,7 @@
             }
         }
         document.addEventListener('DOMContentLoaded', showInstallFabIfDesktop);
-        $(document).on('click', '#install-pwa-fab', function(e) {
+        $(document).on('click', '#install-pwa-fab', function (e) {
             e.preventDefault();
             console.log('Botón instalar app clickeado. deferredPrompt:', deferredPrompt);
             if (deferredPrompt) {
